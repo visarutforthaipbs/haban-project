@@ -1,5 +1,6 @@
 import { Express } from "express-serve-static-core";
 import { Multer } from "multer";
+import "express";
 
 declare global {
   namespace Express {
@@ -13,25 +14,35 @@ declare global {
 
     interface Request {
       user?: any;
-      file?: Express.Multer.File;
-      files?:
-        | {
-            [fieldname: string]: Express.Multer.File[];
-          }
-        | Express.Multer.File[];
+      file?: any;
+      files?: any;
+      body?: any;
+      query?: any;
+      params?: any;
+      headers?: any;
+      cookies?: any;
+    }
+
+    interface Response {
+      status(code: number): Response;
+      json(body?: any): Response;
+      send(body?: any): Response;
+      cookie(name: string, val: string, options?: any): Response;
+      clearCookie(name: string, options?: any): Response;
+      redirect(url: string): Response;
+      render(view: string, locals?: any): Response;
     }
   }
 }
 
-// Extend the AuthenticatedRequest interface
-interface AuthenticatedRequest extends Express.Request {
+// Define AuthenticatedRequest interface with all the properties
+export interface AuthenticatedRequest extends Express.Request {
   user: any;
-  file?: Express.Multer.File;
-  files?:
-    | {
-        [fieldname: string]: Express.Multer.File[];
-      }
-    | Express.Multer.File[];
+  file?: any;
+  files?: any;
+  body?: any;
+  query?: any;
+  params?: any;
+  headers?: any;
+  cookies?: any;
 }
-
-export { AuthenticatedRequest };

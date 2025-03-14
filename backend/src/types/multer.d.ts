@@ -1,7 +1,7 @@
 declare module "multer" {
   import { Request } from "express";
 
-  interface File {
+  export interface File {
     fieldname: string;
     originalname: string;
     encoding: string;
@@ -13,7 +13,7 @@ declare module "multer" {
     buffer: Buffer;
   }
 
-  interface Multer {
+  export interface Multer {
     single(fieldname: string): any;
     array(fieldname: string, maxCount?: number): any;
     fields(fields: { name: string; maxCount?: number }[]): any;
@@ -21,9 +21,28 @@ declare module "multer" {
     any(): any;
   }
 
+  export interface StorageEngine {}
+
+  export interface DiskStorageOptions {
+    destination?:
+      | string
+      | ((
+          req: Request,
+          file: File,
+          callback: (error: Error | null, destination: string) => void
+        ) => void);
+    filename?: (
+      req: Request,
+      file: File,
+      callback: (error: Error | null, filename: string) => void
+    ) => void;
+  }
+
+  export interface MemoryStorageOptions {}
+
   interface Options {
     dest?: string;
-    storage?: any;
+    storage?: StorageEngine;
     limits?: {
       fieldNameSize?: number;
       fieldSize?: number;
@@ -42,6 +61,13 @@ declare module "multer" {
   }
 
   function multer(options?: Options): Multer;
+
+  namespace multer {
+    export function memoryStorage(
+      options?: MemoryStorageOptions
+    ): StorageEngine;
+    export function diskStorage(options: DiskStorageOptions): StorageEngine;
+  }
 
   export = multer;
 }

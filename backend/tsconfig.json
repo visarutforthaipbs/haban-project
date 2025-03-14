@@ -18,7 +18,10 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "noImplicitAny": false,
     "noImplicitReturns": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "ignoreDeprecations": "5.0",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
