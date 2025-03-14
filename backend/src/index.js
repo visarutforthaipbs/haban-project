@@ -91,8 +91,12 @@ mongoose
       // Connection options
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000, // 10 seconds
-      socketTimeoutMS: 45000, // 45 seconds
+      serverSelectionTimeoutMS: 30000, // 30 seconds (increased from 10)
+      socketTimeoutMS: 60000, // 60 seconds (increased from 45)
+      connectTimeoutMS: 30000, // 30 seconds explicit connect timeout
+      // Handle retries automatically
+      retryWrites: true,
+      w: "majority",
     }
   )
   .then(() => console.log("Connected to MongoDB successfully"))
