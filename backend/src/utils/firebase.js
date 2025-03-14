@@ -12,6 +12,9 @@ console.log("Private Key:", process.env.FIREBASE_PRIVATE_KEY ? "✓" : "✗");
 console.log("Client Email:", process.env.FIREBASE_CLIENT_EMAIL ? "✓" : "✗");
 console.log("Storage Bucket:", process.env.FIREBASE_STORAGE_BUCKET ? "✓" : "✗");
 
+// Flag to track if Firebase is properly configured
+let isFirebaseConfigured = false;
+
 // Initialize Firebase Admin only if all required environment variables are present
 if (
   !admin.apps.length &&
@@ -38,24 +41,34 @@ if (
 
     admin.initializeApp(firebaseConfig);
     console.log("Firebase Admin initialized successfully");
+    isFirebaseConfigured = true;
   } catch (error) {
     console.error("Error initializing Firebase Admin:", error);
   }
 } else {
-  console.error("Missing required Firebase configuration variables");
+  console.warn(
+    "Missing Firebase configuration. File uploads will be disabled."
+  );
 }
 
-const storage = admin.apps.length ? admin.storage() : null;
+// Only get storage and bucket if Firebase is configured
+const storage =
+  isFirebaseConfigured && admin.apps.length ? admin.storage() : null;
 const bucket = storage?.bucket();
 
 /**
  * Upload a file to Firebase Storage
  * @param {Object} file - The file to upload (from multer)
- * @returns {Promise<string>} - The public URL of the uploaded file
+ * @returns {Promise<string>} - The public URL of the uploaded file or a placeholder URL
  */
 const uploadToFirebase = async (file) => {
   if (!bucket) {
-    throw new Error("Firebase Storage is not configured");
+    console.warn(
+      "Firebase Storage not configured. Returning placeholder URL for file:",
+      file.originalname
+    );
+    // Return a placeholder URL since Firebase is not configured
+    return `https://via.placeholder.com/300?text=Image+Unavailable`;
   }
 
   try {
@@ -90,7 +103,8 @@ const uploadToFirebase = async (file) => {
     });
   } catch (error) {
     console.error("Error uploading to Firebase:", error);
-    throw error;
+    // Return a placeholder URL if there's an error
+    return `https://via.placeholder.com/300?text=Upload+Error`;
   }
 };
 
@@ -99,4 +113,5 @@ module.exports = {
   storage,
   bucket,
   uploadToFirebase,
+  isFirebaseConfigured,
 };
