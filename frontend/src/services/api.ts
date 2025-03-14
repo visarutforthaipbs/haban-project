@@ -58,7 +58,7 @@ export interface DogApi {
 export const dogApi: DogApi = {
   createDog: async (data: FormData) => {
     try {
-      const response = await api.post<DogData>("/api/dogs", data, {
+      const response = await api.post<DogData>("/dogs", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -83,17 +83,17 @@ export const dogApi: DogApi = {
     radius?: number;
     userId?: string;
   }) => {
-    const response = await api.get<DogData[]>("/api/dogs", { params });
+    const response = await api.get<DogData[]>("/dogs", { params });
     return response.data;
   },
 
   getDog: async (id: string) => {
-    const response = await api.get<DogData>(`/api/dogs/${id}`);
+    const response = await api.get<DogData>(`/dogs/${id}`);
     return response.data;
   },
 
   updateDog: async (id: string, data: FormData) => {
-    const response = await api.patch<DogData>(`/api/dogs/${id}`, data, {
+    const response = await api.patch<DogData>(`/dogs/${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -102,7 +102,7 @@ export const dogApi: DogApi = {
   },
 
   deleteDog: async (id: string) => {
-    await api.delete(`/api/dogs/${id}`);
+    await api.delete(`/dogs/${id}`);
   },
 
   searchDogs: async (params: {
@@ -110,12 +110,12 @@ export const dogApi: DogApi = {
     type?: "lost" | "found";
     status?: "active" | "resolved" | "expired";
   }) => {
-    const response = await api.get<DogData[]>("/api/dogs/search", { params });
+    const response = await api.get<DogData[]>("/dogs/search", { params });
     return response.data;
   },
 
   updateDogStatus: async (id: string, status: string) => {
-    const response = await api.patch<DogData>(`/api/dogs/${id}/status`, {
+    const response = await api.patch<DogData>(`/dogs/${id}/status`, {
       status,
     });
     return response.data;
@@ -161,20 +161,20 @@ export interface NotificationApi {
 
 export const notificationApi: NotificationApi = {
   async getNotifications() {
-    const response = await api.get<NotificationData[]>("/api/notifications");
+    const response = await api.get<NotificationData[]>("/notifications");
     return response.data;
   },
 
   async markAsRead(id: string) {
     const response = await api.patch<NotificationData>(
-      `/api/notifications/${id}/read`
+      `/notifications/${id}/read`
     );
     return response.data;
   },
 
   async markAllAsRead() {
     const response = await api.post<{ success: boolean }>(
-      "/api/notifications/read-all"
+      "/notifications/read-all"
     );
     return response.data;
   },
@@ -184,7 +184,7 @@ export const notificationApi: NotificationApi = {
     email?: string;
   }) {
     const response = await api.put<{ success: boolean }>(
-      "/api/notifications/settings",
+      "/notifications/settings",
       settings
     );
     return response.data;
@@ -194,7 +194,7 @@ export const notificationApi: NotificationApi = {
     const response = await api.get<{
       enableEmailNotifications: boolean;
       email?: string;
-    }>("/api/notifications/settings");
+    }>("/notifications/settings");
     return response.data;
   },
 };
