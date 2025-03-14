@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "mkdir -p dist && cp -r src/* dist/ && find dist -name '*.ts' -delete",
+    "build": "npm run build:js",
+    "build:js": "tsc --allowJs --outDir dist || cp -r src/* dist/ && find dist -name '*.ts' -delete",
     "build:ts": "tsc --skipLibCheck --noEmitOnError false",
     "lint": "eslint . --ext .ts",
     "test": "jest"
