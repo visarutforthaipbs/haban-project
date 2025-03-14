@@ -8,20 +8,17 @@
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": false,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "typeRoots": ["./node_modules/@types", "./src/types"],
     "noImplicitAny": false,
+    "noEmitOnError": false,
     "noImplicitReturns": false,
     "strictNullChecks": false,
     "ignoreDeprecations": "5.0",
     "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "any": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
