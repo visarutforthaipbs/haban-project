@@ -1,0 +1,140 @@
+/* Popup styles */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  font-family: "Prompt", sans-serif !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  font-family: "Prompt", sans-serif !important;
+}
+
+.leaflet-popup-tip {
+  background: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.custom-popup {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 8px !important;
+}
+
+/* Marker styles */
+.leaflet-marker-icon {
+  transition: all 0.2s ease-in-out;
+}
+
+.leaflet-marker-icon:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+/* Close button styles */
+.leaflet-popup-close-button {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 20px !important;
+  color: #4a5568 !important;
+  padding: 0 !important;
+  margin: 4px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease-in-out !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(4px) !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #2d3748 !important;
+  background: white !important;
+  transform: scale(1.1) !important;
+}
+
+/* Content wrapper styles */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: white !important;
+}
+
+/* Links within leaflet container */
+.leaflet-container a {
+  color: white !important;
+}
+
+/* Custom badge styles */
+.custom-popup .chakra-badge {
+  font-weight: 500 !important;
+  text-transform: none !important;
+  font-size: 0.625rem !important;
+}
+
+/* Custom text styles */
+.custom-popup .chakra-text {
+  line-height: 1.2 !important;
+  font-family: "Prompt", sans-serif !important;
+  margin-bottom: 2px !important;
+}
+
+/* Custom button styles */
+.custom-popup .chakra-button {
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease-in-out !important;
+  font-family: "Prompt", sans-serif !important;
+  font-size: 0.7rem !important;
+  height: 1.6rem !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.custom-popup .chakra-button:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* Enhanced map container styles */
+.leaflet-container {
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Cleaner map attribution */
+.leaflet-control-attribution {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Map controls styling */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: white !important;
+  color: #4a5568 !important;
+  transition: all 0.2s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f7fafc !important;
+  color: #2d3748 !important;
+}
