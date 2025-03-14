@@ -31,10 +31,17 @@ const io = new Server(httpServer, {
     origin: [
       process.env.FRONTEND_URL || "http://localhost:5173",
       "https://haban-project.vercel.app",
+      "https://www.haban-project.vercel.app",
+      "https://haban-project-visarutforthaipbs.vercel.app",
+      "https://www.facebook.com",
+      "*", // As a last resort, allow all origins (not recommended for production)
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
+  // Allow transport
+  transports: ["websocket", "polling"],
 });
 
 // Middleware
@@ -44,12 +51,15 @@ app.use(
       const allowedOrigins = [
         process.env.FRONTEND_URL || "http://localhost:5173",
         "https://haban-project.vercel.app",
+        "https://www.haban-project.vercel.app",
+        "https://haban-project-visarutforthaipbs.vercel.app",
+        "https://www.facebook.com",
       ];
 
       // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (allowedOrigins.indexOf(origin) !== -1 || origin === "*") {
         return callback(null, true);
       } else {
         console.log("Blocked by CORS: ", origin);
