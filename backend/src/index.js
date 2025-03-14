@@ -34,6 +34,8 @@ const io = new Server(httpServer, {
       "https://www.haban-project.vercel.app",
       "https://haban-project-visarutforthaipbs.vercel.app",
       "https://www.facebook.com",
+      "https://haban.love",
+      "https://www.haban.love",
       "*", // As a last resort, allow all origins (not recommended for production)
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -54,6 +56,8 @@ app.use(
         "https://www.haban-project.vercel.app",
         "https://haban-project-visarutforthaipbs.vercel.app",
         "https://www.facebook.com",
+        "https://haban.love",
+        "https://www.haban.love",
       ];
 
       // Allow requests with no origin (like mobile apps, curl, etc.)
