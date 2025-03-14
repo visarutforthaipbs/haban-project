@@ -28,7 +28,10 @@ const httpServer = createServer(app);
 // Socket.io setup
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:5173",
+      "https://haban-project.vercel.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   },
@@ -37,7 +40,22 @@ const io = new Server(httpServer, {
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL || "http://localhost:5173",
+        "https://haban-project.vercel.app",
+      ];
+
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      } else {
+        console.log("Blocked by CORS: ", origin);
+        return callback(null, false);
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -92,10 +110,18 @@ app.use("/api/users", userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("ERROR DETAILS:");
+  console.error(`Path: ${req.path}`);
+  console.error(`Query: ${JSON.stringify(req.query)}`);
+  console.error(`Method: ${req.method}`);
+  console.error(`Headers: ${JSON.stringify(req.headers)}`);
+  console.error(`Error: ${err.message}`);
+  console.error(`Stack: ${err.stack}`);
+
   res.status(500).json({
     message: "Something went wrong!",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    error:
+      process.env.NODE_ENV === "development" ? err.message : "Server Error",
   });
 });
 
