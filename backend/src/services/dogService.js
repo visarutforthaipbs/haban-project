@@ -9,6 +9,10 @@ class DogService {
   }
 
   async getDogs(params) {
+    console.log(
+      "dogService.getDogs called with params:",
+      JSON.stringify(params, null, 2)
+    );
     const query = {};
 
     if (params.type) query.type = params.type;
@@ -27,7 +31,16 @@ class DogService {
       };
     }
 
-    return Dog.find(query).sort({ createdAt: -1 });
+    console.log("Final MongoDB query:", JSON.stringify(query, null, 2));
+    try {
+      const result = await Dog.find(query).sort({ createdAt: -1 });
+      console.log(`MongoDB query successful, found ${result.length} dogs`);
+      return result;
+    } catch (err) {
+      console.error("MongoDB query error:", err);
+      console.error("Error stack:", err.stack);
+      throw err;
+    }
   }
 
   async getDogById(id) {

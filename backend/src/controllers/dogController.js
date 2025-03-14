@@ -77,6 +77,7 @@ const createDog = async (req, res) => {
 
 const getDogs = async (req, res) => {
   try {
+    console.log("getDogs called with query:", req.query);
     const { type, status = "active", lat, lng, radius, userId } = req.query;
 
     // Set up filter criteria
@@ -84,6 +85,7 @@ const getDogs = async (req, res) => {
     if (type) filter.type = type;
     if (status) filter.status = status;
     if (userId) filter.userId = userId;
+    console.log("Filter criteria:", filter);
 
     // Location based filtering
     let geoFilter = null;
@@ -104,17 +106,25 @@ const getDogs = async (req, res) => {
             },
           },
         };
+        console.log("GeoFilter applied:", geoFilter);
       }
     }
 
+    console.log(
+      "Calling dogService.getDogs with filter:",
+      geoFilter ? { ...filter, ...geoFilter } : filter
+    );
     // Handle location filtering
     const dogs = await dogService.getDogs(
       geoFilter ? { ...filter, ...geoFilter } : filter
     );
 
+    console.log(`Successfully retrieved ${dogs.length} dogs`);
     return res.status(200).json(dogs);
   } catch (error) {
-    console.error("Error getting dogs:", error);
+    console.error("Detailed error in getDogs:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error getting dogs:", error.message);
     return res.status(500).json({
       message: "Failed to retrieve dog listings",
       error: error.message,

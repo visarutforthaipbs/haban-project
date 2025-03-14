@@ -70,12 +70,36 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Database connection
+console.log("Attempting to connect to MongoDB...");
+console.log(
+  "MongoDB URI:",
+  process.env.MONGODB_URI ? "URI is set" : "URI is not set, using default"
+);
+
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("MongoDB disconnected");
+});
+
 mongoose
   .connect(
-    process.env.MONGODB_URI || "mongodb://localhost:27017/lost-found-dogs"
+    process.env.MONGODB_URI || "mongodb://localhost:27017/lost-found-dogs",
+    {
+      // Connection options
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // 10 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+    }
   )
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((error) => console.error("MongoDB connection error:", error));
+  .then(() => console.log("Connected to MongoDB successfully"))
+  .catch((error) => {
+    console.error("MongoDB connection error details:", error);
+    console.error("Error stack:", error.stack);
+  });
 
 // Socket.io handlers
 io.on("connection", (socket) => {
