@@ -1,4 +1,5 @@
-const { Router } = require("express");
+const express = require("express");
+const router = express.Router();
 const { verifyToken } = require("../middleware/auth");
 const {
   getNotifications,
@@ -8,8 +9,6 @@ const {
   updateSettings,
 } = require("../controllers/notificationController");
 
-const router = Router();
-
 // All notification routes require authentication
 router.use(verifyToken);
 
@@ -17,10 +16,10 @@ router.use(verifyToken);
 router.get("/", getNotifications);
 
 // Mark a notification as read
-router.patch("/:id/read", markAsRead);
+router.put("/:id/read", markAsRead);
 
 // Mark all notifications as read
-router.post("/read-all", markAllAsRead);
+router.put("/read-all", markAllAsRead);
 
 // Get notification settings
 router.get("/settings", getSettings);
