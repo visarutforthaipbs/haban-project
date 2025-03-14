@@ -152,4 +152,5 @@ module.exports = {
   validateSearchDogs,
   validateDogId,
   validateUpdateStatus,
+  handleValidationErrors,
 };
