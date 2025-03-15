@@ -53,6 +53,9 @@ export interface DogApi {
     status?: "active" | "resolved" | "expired";
   }) => Promise<DogData[]>;
   updateDogStatus: (id: string, status: string) => Promise<DogData>;
+  saveDog: (id: string) => Promise<{ success: boolean }>;
+  unsaveDog: (id: string) => Promise<{ success: boolean }>;
+  getSavedDogs: () => Promise<DogData[]>;
 }
 
 export const dogApi: DogApi = {
@@ -118,6 +121,21 @@ export const dogApi: DogApi = {
     const response = await api.patch<DogData>(`/dogs/${id}/status`, {
       status,
     });
+    return response.data;
+  },
+
+  saveDog: async (id: string) => {
+    const response = await api.post<{ success: boolean }>(`/dogs/${id}/save`);
+    return response.data;
+  },
+
+  unsaveDog: async (id: string) => {
+    const response = await api.delete<{ success: boolean }>(`/dogs/${id}/save`);
+    return response.data;
+  },
+
+  getSavedDogs: async () => {
+    const response = await api.get<DogData[]>("/dogs/saved");
     return response.data;
   },
 };

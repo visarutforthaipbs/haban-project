@@ -18,6 +18,7 @@ import {
   ListItem,
   ListIcon,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +31,9 @@ import EditProfileModal from "../components/EditProfileModal";
 const Profile = () => {
   const { user, logout, refreshUser } = useAuth();
   const [userDogs, setUserDogs] = useState<DogData[]>([]);
+  const [savedDogs, setSavedDogs] = useState<DogData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavedDogsLoading, setIsSavedDogsLoading] = useState(true);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
@@ -51,6 +54,30 @@ const Profile = () => {
 
     fetchUserDogs();
   }, [user]);
+
+  useEffect(() => {
+    const fetchSavedDogs = async () => {
+      if (!user) return;
+
+      setIsSavedDogsLoading(true);
+      try {
+        const response = await dogApi.getSavedDogs();
+        setSavedDogs(response);
+      } catch (error) {
+        console.error("Error fetching saved dogs:", error);
+        toast({
+          title: "ไม่สามารถโหลดรายการที่บันทึกได้",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setIsSavedDogsLoading(false);
+      }
+    };
+
+    fetchSavedDogs();
+  }, [user, toast]);
 
   const lostDogs = userDogs.filter((dog) => dog.type === "lost");
   const foundDogs = userDogs.filter((dog) => dog.type === "found");
@@ -217,9 +244,22 @@ const Profile = () => {
                 )}
               </TabPanel>
               <TabPanel>
-                <Text color="gray.600" textAlign="center">
-                  ยังไม่มีรายการที่บันทึก
-                </Text>
+                {isSavedDogsLoading ? (
+                  <Center py={8}>
+                    <Spinner size="lg" color="brand.500" />
+                  </Center>
+                ) : savedDogs.length > 0 ? (
+                  <DogListViewWithUser
+                    dogs={savedDogs}
+                    selectedDog={null}
+                    onDogSelect={() => {}}
+                    columns={{ base: 1, md: 2, lg: 2, xl: 2 }}
+                  />
+                ) : (
+                  <Text color="gray.600" textAlign="center">
+                    ยังไม่มีรายการที่บันทึก
+                  </Text>
+                )}
               </TabPanel>
             </TabPanels>
           </Tabs>

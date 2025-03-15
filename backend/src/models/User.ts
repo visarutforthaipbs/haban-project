@@ -11,6 +11,7 @@ export interface IUser extends Document {
   bio?: string;
   preferredContact?: string;
   contactInfo?: string;
+  savedDogs: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +60,13 @@ const userSchema = new Schema<IUser>(
       trim: true,
       maxlength: 100,
     },
+    savedDogs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Dog",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,

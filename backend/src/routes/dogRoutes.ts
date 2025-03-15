@@ -8,6 +8,9 @@ import {
   deleteDog,
   searchDogs,
   updateDogStatus,
+  saveDog,
+  unsaveDog,
+  getSavedDogs,
 } from "../controllers/dogController";
 import {
   validateCreateDog,
@@ -57,5 +60,14 @@ router.patch(
 );
 router.delete("/:id", verifyToken, validateDogId, deleteDog);
 router.patch("/:id/status", verifyToken, validateUpdateStatus, updateDogStatus);
+
+// Save a dog
+router.post("/:id/save", verifyToken, saveDog);
+
+// Unsave a dog
+router.delete("/:id/save", verifyToken, unsaveDog);
+
+// Get all saved dogs
+router.get("/saved", verifyToken, getSavedDogs);
 
 export default router;

@@ -38,13 +38,20 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useAuth } from "../contexts/AuthContext";
 import ContactInfoModal from "../components/ContactInfoModal";
 import MatchingDogsSection from "../components/MatchingDogsSection";
+import {
+  FiMapPin,
+  FiCalendar,
+  FiPhone,
+  FiUser,
+  FiBookmark,
+  FiCheck,
+} from "react-icons/fi";
+import ShareButtons from "../components/ShareButtons";
+import axios from "axios";
 
 // Types
 import { DogData, DogStatusUpdate } from "../types/Dog";
 import { dogApi } from "../services/api";
-import { FiMapPin, FiCalendar, FiPhone, FiUser } from "react-icons/fi";
-import ShareButtons from "../components/ShareButtons";
-import axios from "axios";
 
 // User information interface
 interface UserInfo {
@@ -60,9 +67,12 @@ const DogDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaveLoading, setIsSaveLoading] = useState(false);
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -107,6 +117,23 @@ const DogDetails = () => {
 
     fetchDog();
   }, [id, toast]);
+
+  useEffect(() => {
+    const checkIfDogIsSaved = async () => {
+      if (!isAuthenticated || !id) return;
+
+      try {
+        // Get user's saved dogs
+        const savedDogs = await dogApi.getSavedDogs();
+        // Check if current dog is in saved dogs
+        setIsSaved(savedDogs.some((savedDog) => savedDog._id === id));
+      } catch (error) {
+        console.error("Error checking if dog is saved:", error);
+      }
+    };
+
+    checkIfDogIsSaved();
+  }, [id, isAuthenticated]);
 
   const formatDate = (date: string | Date | undefined) => {
     if (!date) return "ไม่ระบุ";
@@ -194,22 +221,6 @@ const DogDetails = () => {
   // Define the meta image (used for helmet, not for share buttons now)
   const pageImage = dog?.photos && dog.photos.length > 0 ? dog.photos[0] : null;
 
-  if (isLoading) {
-    return (
-      <Container maxW="container.md" py={8}>
-        <Box textAlign="center">Loading...</Box>
-      </Container>
-    );
-  }
-
-  if (!dog) {
-    return (
-      <Container maxW="container.md" py={8}>
-        <Box textAlign="center">Dog not found</Box>
-      </Container>
-    );
-  }
-
   // Button click handler
   const handleStatusUpdate = async () => {
     if (!dog) return;
@@ -232,6 +243,73 @@ const DogDetails = () => {
       });
     }
   };
+
+  const handleToggleSave = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "กรุณาเข้าสู่ระบบ",
+        description: "คุณต้องเข้าสู่ระบบก่อนจึงจะสามารถบันทึกรายการได้",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!id) return;
+
+    setIsSaveLoading(true);
+    try {
+      if (isSaved) {
+        await dogApi.unsaveDog(id);
+        setIsSaved(false);
+        toast({
+          title: "ยกเลิกการบันทึกสำเร็จ",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      } else {
+        await dogApi.saveDog(id);
+        setIsSaved(true);
+        toast({
+          title: "บันทึกรายการสำเร็จ",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling save status:", error);
+      toast({
+        title: isSaved
+          ? "ไม่สามารถยกเลิกการบันทึกได้"
+          : "ไม่สามารถบันทึกรายการได้",
+        description: "โปรดลองอีกครั้งในภายหลัง",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSaveLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <Box textAlign="center">Loading...</Box>
+      </Container>
+    );
+  }
+
+  if (!dog) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <Box textAlign="center">Dog not found</Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW="container.md" py={8}>
@@ -376,8 +454,8 @@ const DogDetails = () => {
           </VStack>
 
           {/* Actions */}
-          {user && user.id === dog.userId && (
-            <HStack justify="flex-end" pt={4}>
+          <HStack justify="flex-end" pt={4} spacing={4}>
+            {user && user.id === dog.userId && (
               <Button
                 colorScheme={dog.status === "active" ? "blue" : "green"}
                 onClick={handleStatusUpdate}
@@ -386,8 +464,21 @@ const DogDetails = () => {
                   ? "ทำเครื่องหมายว่าพบแล้ว"
                   : "เปิดการค้นหาอีกครั้ง"}
               </Button>
-            </HStack>
-          )}
+            )}
+
+            {isAuthenticated && (
+              <Button
+                size="sm"
+                colorScheme={isSaved ? "green" : "gray"}
+                variant="outline"
+                leftIcon={isSaved ? <FiCheck /> : <FiBookmark />}
+                onClick={handleToggleSave}
+                isLoading={isSaveLoading}
+              >
+                {isSaved ? "บันทึกแล้ว" : "บันทึก"}
+              </Button>
+            )}
+          </HStack>
         </Stack>
       </Stack>
     </Container>

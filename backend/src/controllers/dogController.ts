@@ -4,6 +4,9 @@ import { getFileUrl } from "../utils/fileUtils";
 import { uploadToFirebase } from "../utils/firebase";
 import { createStatusUpdateNotification } from "../services/notificationService";
 import { findPotentialMatches } from "../services/matchingService";
+import mongoose from "mongoose";
+import Dog from "../models/Dog";
+import User from "../models/User";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -343,5 +346,105 @@ export const updateDogStatus = async (
   } catch (error) {
     console.error("Error updating dog status:", error);
     res.status(500).json({ message: "Error updating dog status" });
+  }
+};
+
+/**
+ * Save a dog to user's saved list
+ */
+export const saveDog = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid dog ID" });
+    }
+
+    // Check if the dog exists
+    const dog = await Dog.findById(id);
+    if (!dog) {
+      return res.status(404).json({ message: "Dog not found" });
+    }
+
+    // Add the dog to the user's saved dogs if not already saved
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const dogIdStr = dog._id.toString();
+    // Check if dog is already saved
+    const isDogSaved = user.savedDogs.some(
+      (savedId) => savedId.toString() === dogIdStr
+    );
+
+    if (!isDogSaved) {
+      user.savedDogs.push(dog._id);
+      await user.save();
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error saving dog:", error);
+    return res.status(500).json({ message: "Error saving dog" });
+  }
+};
+
+/**
+ * Remove a dog from user's saved list
+ */
+export const unsaveDog = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid dog ID" });
+    }
+
+    // Remove the dog from the user's saved dogs
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.savedDogs = user.savedDogs.filter((dogId) => dogId.toString() !== id);
+
+    await user.save();
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error removing saved dog:", error);
+    return res.status(500).json({ message: "Error removing saved dog" });
+  }
+};
+
+/**
+ * Get all saved dogs for the current user
+ */
+export const getSavedDogs = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    // Find user and populate the savedDogs reference
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If user has no saved dogs, return empty array
+    if (!user.savedDogs.length) {
+      return res.status(200).json([]);
+    }
+
+    // Get all saved dogs
+    const savedDogs = await Dog.find({
+      _id: { $in: user.savedDogs },
+    });
+
+    return res.status(200).json(savedDogs);
+  } catch (error) {
+    console.error("Error getting saved dogs:", error);
+    return res.status(500).json({ message: "Error getting saved dogs" });
   }
 };
