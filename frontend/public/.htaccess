@@ -1,0 +1,28 @@
+# Ensure correct MIME types are sent
+<IfModule mod_mime.c>
+    # Add proper MIME types
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/svg+xml .svg
+    
+    # Set correct encoding
+    AddDefaultCharset UTF-8
+</IfModule>
+
+# Enable CORS
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg)$">
+        Header set Access-Control-Allow-Origin "*"
+        Header set Content-Type "image/jpeg" "expr=%{CONTEXT_DOCUMENT_ROOT}/%{REQUEST_URI} =~ /\.jpe?g$/i"
+        Header set Content-Type "image/png" "expr=%{CONTEXT_DOCUMENT_ROOT}/%{REQUEST_URI} =~ /\.png$/i"
+        Header set Content-Type "image/svg+xml" "expr=%{CONTEXT_DOCUMENT_ROOT}/%{REQUEST_URI} =~ /\.svg$/i"
+    </FilesMatch>
+</IfModule>
+
+# Cache control for images
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule> 
