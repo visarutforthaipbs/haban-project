@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { FiEdit, FiLogOut, FiCheck } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { DogData, dogApi } from "../services/api";
-import DogListView from "../components/DogListView";
+import DogListViewWithUser from "../components/DogListViewWithUser";
 import EditProfileModal from "../components/EditProfileModal";
 
 const Profile = () => {
@@ -188,7 +188,7 @@ const Profile = () => {
                 {isLoading ? (
                   <Spinner />
                 ) : lostDogs.length > 0 ? (
-                  <DogListView
+                  <DogListViewWithUser
                     dogs={lostDogs}
                     selectedDog={null}
                     onDogSelect={() => {}}
@@ -204,7 +204,7 @@ const Profile = () => {
                 {isLoading ? (
                   <Spinner />
                 ) : foundDogs.length > 0 ? (
-                  <DogListView
+                  <DogListViewWithUser
                     dogs={foundDogs}
                     selectedDog={null}
                     onDogSelect={() => {}}

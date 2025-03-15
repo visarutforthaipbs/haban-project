@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import * as express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -18,7 +18,7 @@ import { socialMediaPrerender } from "./middleware";
 dotenv.config();
 
 // Create Express app
-const app = express();
+const app = express.default();
 const httpServer = createServer(app);
 
 // Socket.io setup
@@ -86,19 +86,122 @@ app.use("/api/dogs", dogRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 
+// Add a direct route for social media crawlers
+app.get("/dogs/:id", async (req, res, next) => {
+  const userAgent = req.get("user-agent") || "";
+  const isSocialMediaBot = [
+    "facebookexternalhit",
+    "Facebot",
+    "LinkedInBot",
+    "Twitterbot",
+    "WhatsApp",
+    "Line",
+  ].some((bot) => userAgent.toLowerCase().includes(bot.toLowerCase()));
+
+  if (isSocialMediaBot) {
+    console.log(`Social bot detected at /dogs/:id: ${userAgent}`);
+    try {
+      const dogId = req.params.id;
+      const dog = await dogService.getDogById(dogId);
+
+      if (!dog) {
+        return next();
+      }
+
+      const title = dog.name
+        ? `${dog.name} - ${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${
+            dog.breed
+          }`
+        : `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed}`;
+
+      const description =
+        dog.description ||
+        `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed} จาก ${
+          dog.locationName
+        }`;
+
+      const imageUrl =
+        dog.photos && dog.photos.length > 0
+          ? dog.photos[0].startsWith("http")
+            ? dog.photos[0]
+            : `${req.protocol}://${req.get("host")}${dog.photos[0]}`
+          : `${req.protocol}://${req.get("host")}/default-dog.jpg`;
+
+      const canonicalUrl = `https://www.haban.love/dogs/${dog._id}`;
+
+      console.log(`Generating social preview for dog ID: ${dogId}`);
+      console.log(`Image URL: ${imageUrl}`);
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8">
+          <title>${title}</title>
+          <meta name="description" content="${description}">
+          
+          <!-- Open Graph / Facebook -->
+          <meta property="og:type" content="website">
+          <meta property="og:url" content="${canonicalUrl}">
+          <meta property="og:title" content="${title}">
+          <meta property="og:description" content="${description}">
+          <meta property="og:image" content="${imageUrl}">
+          <meta property="og:image:width" content="1200">
+          <meta property="og:image:height" content="630">
+          <meta property="og:locale" content="th_TH">
+          <meta property="og:site_name" content="haban.love - ระบบแจ้งและตามหาสุนัขหาย">
+          <meta property="fb:app_id" content="297302183484420">
+          
+          <!-- Twitter -->
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:url" content="${canonicalUrl}">
+          <meta name="twitter:title" content="${title}">
+          <meta name="twitter:description" content="${description}">
+          <meta name="twitter:image" content="${imageUrl}">
+          
+          <!-- Canonical -->
+          <link rel="canonical" href="${canonicalUrl}">
+          
+          <!-- Redirect to the actual page -->
+          <meta http-equiv="refresh" content="0;url=${canonicalUrl}">
+        </head>
+        <body>
+          <p>กำลังนำคุณไปที่ <a href="${canonicalUrl}">${title}</a></p>
+        </body>
+        </html>
+      `;
+
+      return res.send(html);
+    } catch (error) {
+      console.error("Error generating social preview:", error);
+      return next();
+    }
+  } else {
+    // Not a social media bot, continue
+    next();
+  }
+});
+
 // Basic health check route
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: "Something went wrong!",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined,
-  });
-});
+app.use(
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).json({
+      message: "Something went wrong!",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  }
+);
 
 // Start server
 const PORT = process.env.PORT || 3000;

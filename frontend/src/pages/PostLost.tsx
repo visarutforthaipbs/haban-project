@@ -178,7 +178,7 @@ const PostLost = () => {
     <Container maxW="container.md" py={8}>
       <VStack spacing={8} align="stretch">
         <Box textAlign="center">
-          <Heading size="xl" color="red.500" mb={2}>
+          <Heading size="xl" color="orange.600" mb={2}>
             แจ้งสุนัขหาย
           </Heading>
           <Text color="gray.600" fontSize="lg">

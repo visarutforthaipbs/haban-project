@@ -10,18 +10,11 @@ import {
   SimpleGrid,
   Avatar,
   HStack,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { DogData } from "../services/api";
 // import ShareButtons from "./ShareButtons"; // Temporarily removed
-import { useEffect, useState } from "react";
-import axios from "axios";
-
-interface UserInfo {
-  id: string;
-  name: string;
-  profileImage?: string;
-}
 
 interface DogListViewProps {
   dogs: DogData[];
@@ -46,60 +39,9 @@ export const DogListViewWithUser = ({
   onDogSelect,
   columns = { base: 1, md: 2, lg: 4, xl: 5 },
 }: DogListViewProps) => {
-  const [userInfoMap, setUserInfoMap] = useState<Record<string, UserInfo>>({});
-
-  // Fetch user information for all unique userIds
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        // Get unique user IDs
-        const uniqueUserIds = [
-          ...new Set(dogs.map((dog) => dog.userId).filter(Boolean)),
-        ];
-
-        if (uniqueUserIds.length === 0) return;
-
-        // Create a temporary object to store user info
-        const userMap: Record<string, UserInfo> = {};
-
-        // Fetch user info for each userId
-        // This should be replaced with a batch API call in a production environment
-        for (const userId of uniqueUserIds) {
-          try {
-            if (!userId) continue;
-            const response = await axios.get(
-              `${import.meta.env.VITE_API_URL}/users/${userId}`
-            );
-            if (response.data) {
-              userMap[userId] = {
-                id: response.data.id,
-                name: response.data.name,
-                profileImage: response.data.profileImage,
-              };
-            }
-          } catch (error) {
-            console.error(`Error fetching user info for ${userId}:`, error);
-          }
-        }
-
-        setUserInfoMap(userMap);
-      } catch (error) {
-        console.error("Error fetching user information:", error);
-      }
-    };
-
-    fetchUserInfo();
-  }, [dogs]);
-
   return (
     <SimpleGrid columns={columns} spacing={6}>
       {dogs.map((dog) => {
-        // Get user info if available
-        const userInfo =
-          dog.userId && typeof dog.userId === "string"
-            ? userInfoMap[dog.userId]
-            : null;
-
         return (
           <Box
             key={dog._id}
@@ -170,19 +112,15 @@ export const DogListViewWithUser = ({
                   </Badge>
                 </Flex>
 
-                {/* User information */}
-                {dog.userId && (
-                  <HStack spacing={2} mt={1}>
-                    <Avatar
-                      size="xs"
-                      name={userInfo?.name || "User"}
-                      src={userInfo?.profileImage}
-                    />
-                    <Text fontSize="sm" color="gray.600">
-                      {userInfo?.name || "ผู้ใช้"}
+                {/* User information - simplified until backend is updated */}
+                <HStack spacing={2} mt={1}>
+                  <Avatar size="xs" name={"ผู้ใช้"} />
+                  <Tooltip label="ข้อมูลผู้โพสต์" hasArrow>
+                    <Text fontSize="sm" color="gray.600" noOfLines={1}>
+                      ผู้ใช้งาน
                     </Text>
-                  </HStack>
-                )}
+                  </Tooltip>
+                </HStack>
 
                 <VStack align="stretch" spacing={1}>
                   <Text>
@@ -220,7 +158,6 @@ export const DogListViewWithUser = ({
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDogSelect(dog);
                     }}
                   >
                     ดูรายละเอียด

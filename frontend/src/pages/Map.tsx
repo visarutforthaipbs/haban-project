@@ -32,7 +32,7 @@ import { Icon, LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "../styles/map.css";
 import { DogData, dogApi } from "../services/api";
-import DogListView from "../components/DogListView";
+import DogListViewWithUser from "../components/DogListViewWithUser";
 import { PotentialMatches } from "../components/PotentialMatches";
 
 // Use custom marker icons for lost and found dogs
@@ -192,11 +192,11 @@ const MapPage = () => {
       </Menu>
 
       <Box flex="1" overflowY="auto">
-        <DogListView
+        <DogListViewWithUser
           dogs={filteredDogs}
           selectedDog={selectedDog}
           onDogSelect={handleDogSelect}
-          columns={{ base: 1, md: 1, lg: 1 }}
+          columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
         />
       </Box>
     </VStack>
