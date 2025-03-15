@@ -38,6 +38,42 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Social Media Sharing Handler -->
+  <script type="text/javascript">
+    // Function to detect if the current page is a dog detail page
+    function isDogDetailPage() {
+      return window.location.pathname.match(/\/dogs\/[a-f0-9]{24}$/i);
+    }
+
+    // Function to get the current dog ID from URL
+    function getDogIdFromURL() {
+      const match = window.location.pathname.match(/\/dogs\/([a-f0-9]{24})$/i);
+      return match ? match[1] : null;
+    }
+
+    // Only run on production and if this is a dog detail page
+    if (window.location.hostname === 'www.haban.love' && isDogDetailPage()) {
+      const dogId = getDogIdFromURL();
+      if (dogId) {
+        // Create a meta refresh tag to redirect social media bots to the special sharing service
+        const socialBotUserAgents = [
+          'facebookexternalhit', 'Facebot', 'LinkedInBot', 'Twitterbot',
+          'WhatsApp', 'Line', 'Slackbot', 'TelegramBot', 'Discordbot', 'Pinterest'
+        ];
+
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isSocialBot = socialBotUserAgents.some(bot =>
+          userAgent.includes(bot.toLowerCase())
+        );
+
+        if (isSocialBot) {
+          // Redirect social media bots to our meta service
+          window.location.href = `https://haban-project.onrender.com/preview/dogs/${dogId}`;
+        }
+      }
+    }
+  </script>
 </head>
 
 <body>

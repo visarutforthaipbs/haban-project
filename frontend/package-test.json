@@ -1,0 +1,12 @@
+{
+  "name": "haban-social-media-test",
+  "version": "1.0.0",
+  "description": "Test tools for social media sharing",
+  "private": true,
+  "scripts": {
+    "test-social": "node test-social-bot.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}
