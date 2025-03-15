@@ -8,9 +8,6 @@ import {
   Divider,
   Button,
   SimpleGrid,
-  Avatar,
-  HStack,
-  Tooltip,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { DogData } from "../services/api";
@@ -51,7 +48,7 @@ export const DogListViewWithUser = ({
   const [userInfoMap, setUserInfoMap] = useState<Record<string, UserInfo>>({});
   const [fetchedUserIds, setFetchedUserIds] = useState<Set<string>>(new Set());
 
-  // Fetch user information for all unique userIds
+  // We still fetch user information for potential future use, but don't display it in the list view
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -113,12 +110,6 @@ export const DogListViewWithUser = ({
   return (
     <SimpleGrid columns={columns} spacing={6}>
       {dogs.map((dog) => {
-        // Get user info if available
-        const userInfo =
-          dog.userId && typeof dog.userId === "string"
-            ? userInfoMap[dog.userId]
-            : null;
-
         return (
           <Box
             key={dog._id}
@@ -189,27 +180,6 @@ export const DogListViewWithUser = ({
                   </Badge>
                 </Flex>
 
-                {/* User information */}
-                <HStack spacing={2} mt={1}>
-                  <Avatar
-                    size="xs"
-                    name={userInfo?.name || "ผู้ใช้"}
-                    src={userInfo?.profileImage}
-                  />
-                  <Tooltip
-                    label={
-                      userInfo
-                        ? `โพสต์โดย: ${userInfo.name}`
-                        : "ข้อมูลผู้โพสต์ไม่พร้อมใช้งาน"
-                    }
-                    hasArrow
-                  >
-                    <Text fontSize="sm" color="gray.600" noOfLines={1}>
-                      {userInfo?.name || "ผู้ใช้งาน"}
-                    </Text>
-                  </Tooltip>
-                </HStack>
-
                 <VStack align="stretch" spacing={1}>
                   <Text>
                     <strong>พันธุ์:</strong> {dog.breed}
@@ -250,8 +220,6 @@ export const DogListViewWithUser = ({
                   >
                     ดูรายละเอียด
                   </Button>
-
-                  {/* Share buttons temporarily removed */}
                 </Flex>
               </VStack>
             </Box>

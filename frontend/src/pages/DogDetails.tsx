@@ -23,6 +23,8 @@ import {
   useDisclosure,
   Tag,
   Stack,
+  Avatar,
+  Flex,
 } from "@chakra-ui/react";
 import { Helmet } from "react-helmet-async";
 // import ShareButtons from "../components/ShareButtons"; // Temporarily removed
@@ -40,13 +42,24 @@ import MatchingDogsSection from "../components/MatchingDogsSection";
 // Types
 import { DogData, DogStatusUpdate } from "../types/Dog";
 import { dogApi } from "../services/api";
-import { FiMapPin, FiCalendar, FiPhone } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiPhone, FiUser } from "react-icons/fi";
 import ShareButtons from "../components/ShareButtons";
+import axios from "axios";
+
+// User information interface
+interface UserInfo {
+  id: string;
+  name: string;
+  profileImage?: string;
+  bio?: string;
+}
 
 const DogDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [dog, setDog] = useState<DogData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -57,6 +70,26 @@ const DogDetails = () => {
         if (id) {
           const dogData = await dogApi.getDog(id);
           setDog(dogData);
+
+          // Fetch user info if there's a userId
+          if (dogData.userId) {
+            setIsLoadingUser(true);
+            try {
+              const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/users/${dogData.userId}`
+              );
+              if (response.data) {
+                setUserInfo(response.data);
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching user info for ${dogData.userId}:`,
+                error
+              );
+            } finally {
+              setIsLoadingUser(false);
+            }
+          }
         }
       } catch (err) {
         console.error("Error fetching dog details:", err);
@@ -233,18 +266,31 @@ const DogDetails = () => {
                 : "หมดเวลา"}
             </Badge>
           </HStack>
-
-          {/* Share buttons - temporarily hidden until issues are fixed */}
-          {/* 
-          <Flex justifyContent="flex-end" mt={2}>
-            <ShareButtons
-              title={pageTitle}
-              description={pageDescription}
-              url={pageUrl}
-            />
-          </Flex>
-          */}
         </Box>
+
+        {/* User information */}
+        {dog.userId && (
+          <Box bg="gray.50" p={4} borderRadius="lg" shadow="sm">
+            <HStack spacing={4}>
+              <FiUser />
+              <Text fontWeight="medium">โพสต์โดย:</Text>
+              {isLoadingUser ? (
+                <Spinner size="sm" />
+              ) : userInfo ? (
+                <HStack>
+                  <Avatar
+                    size="sm"
+                    name={userInfo.name}
+                    src={userInfo.profileImage}
+                  />
+                  <Text>{userInfo.name}</Text>
+                </HStack>
+              ) : (
+                <Text>ผู้ใช้งาน</Text>
+              )}
+            </HStack>
+          </Box>
+        )}
 
         {/* Images */}
         {dog.photos && dog.photos.length > 0 && (
