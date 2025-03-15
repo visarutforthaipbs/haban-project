@@ -39,6 +39,7 @@ const NotificationSettings: React.FC = () => {
   const [emailError, setEmailError] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [loadFromApi, setLoadFromApi] = useState(true);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -53,18 +54,35 @@ const NotificationSettings: React.FC = () => {
 
       setIsInitialLoading(true);
       try {
-        await fetchNotificationSettings();
+        // Set a timeout for the API call
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("API request timed out")), 5000)
+        );
+
+        // Race the API call with the timeout
+        await Promise.race([fetchNotificationSettings(), timeoutPromise]);
+
         setError(null);
       } catch (error) {
         console.error("Error loading notification settings:", error);
         setError("ไม่สามารถโหลดการตั้งค่าการแจ้งเตือนได้");
 
+        // If we've tried to load from API once and failed, use defaults
+        if (loadFromApi) {
+          setLoadFromApi(false);
+          // Set default settings
+          setEnableEmailNotifications(false);
+          setEmail(user?.email || "");
+          setIsInitialLoading(false);
+        }
+
         // Only show toast if it's not our first attempt
         if (retryCount > 0) {
           toast({
             title: "ไม่สามารถโหลดการตั้งค่าการแจ้งเตือนได้",
-            status: "error",
-            duration: 3000,
+            description: "กำลังใช้ค่าเริ่มต้น คุณสามารถแก้ไขและบันทึกได้",
+            status: "warning",
+            duration: 5000,
             isClosable: true,
           });
         }
@@ -75,7 +93,14 @@ const NotificationSettings: React.FC = () => {
     };
 
     loadSettings();
-  }, [fetchNotificationSettings, toast, isAuthenticated, user, retryCount]);
+  }, [
+    fetchNotificationSettings,
+    toast,
+    isAuthenticated,
+    user,
+    retryCount,
+    loadFromApi,
+  ]);
 
   useEffect(() => {
     if (notificationSettings) {
@@ -163,6 +188,7 @@ const NotificationSettings: React.FC = () => {
 
   const handleRetry = () => {
     setError(null);
+    setLoadFromApi(true);
     setRetryCount(0); // Reset retry count to trigger a new load
   };
 
@@ -174,7 +200,8 @@ const NotificationSettings: React.FC = () => {
     );
   }
 
-  if (error) {
+  // If there's an authentication error, show the error message
+  if (error && (!isAuthenticated || !user)) {
     return (
       <Alert
         status="error"
@@ -198,6 +225,7 @@ const NotificationSettings: React.FC = () => {
     );
   }
 
+  // Even with API errors, we can still show the form with default values
   return (
     <Box
       borderWidth="1px"
@@ -210,6 +238,21 @@ const NotificationSettings: React.FC = () => {
     >
       <VStack spacing={6} align="stretch">
         <Heading size="md">ตั้งค่าการแจ้งเตือน</Heading>
+
+        {error && (
+          <Alert status="warning" mb={4}>
+            <AlertIcon />
+            <Box flex="1">
+              <AlertTitle fontSize="sm">ไม่สามารถโหลดการตั้งค่าได้</AlertTitle>
+              <AlertDescription fontSize="xs">
+                กำลังแสดงค่าเริ่มต้น คุณสามารถแก้ไขและบันทึกได้
+              </AlertDescription>
+            </Box>
+            <Button size="sm" colorScheme="blue" onClick={handleRetry}>
+              ลองใหม่
+            </Button>
+          </Alert>
+        )}
 
         <Box>
           <Heading size="sm" mb={4}>
