@@ -34,10 +34,21 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*?(facebookexternalhit|Facebot|LinkedInBot|Twitterbot|WhatsApp|Line|Slackbot|TelegramBot|Discordbot|Pinterest).*"
+          "value": "facebookexternalhit"
         }
       ],
-      "destination": "https://haban-project.onrender.com/preview/dogs/:id"
+      "destination": "https://haban-project.onrender.com/api/dogs/:id?format=html"
+    },
+    {
+      "source": "/dogs/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "Facebot"
+        }
+      ],
+      "destination": "https://haban-project.onrender.com/api/dogs/:id?format=html"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

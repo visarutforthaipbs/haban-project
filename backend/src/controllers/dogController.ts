@@ -141,6 +141,80 @@ export const getDog = async (req: Request, res: Response) => {
     if (!dog) {
       return res.status(404).json({ message: "Dog not found" });
     }
+
+    // Check if HTML format is requested (for social media)
+    if (req.query.format === "html") {
+      console.log(`Returning HTML format for dog ${dog._id} for social media`);
+
+      // Generate metadata
+      const title = dog.name
+        ? `${dog.name} - ${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${
+            dog.breed
+          }`
+        : `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed}`;
+
+      const description =
+        dog.description ||
+        `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed} จาก ${
+          dog.locationName
+        }`;
+
+      // Get the first photo or use a default
+      const imageUrl =
+        dog.photos && dog.photos.length > 0
+          ? dog.photos[0]
+          : "https://www.haban.love/fbthumnail-1.png";
+
+      // Use frontend URL for canonical URL
+      const frontendUrl = process.env.FRONTEND_URL || "https://www.haban.love";
+      const canonicalUrl = `${frontendUrl}/dogs/${dog._id}`;
+
+      // Generate HTML with meta tags
+      const html = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8">
+          <title>${title}</title>
+          <meta name="description" content="${description}">
+          
+          <!-- Open Graph / Facebook -->
+          <meta property="og:type" content="website">
+          <meta property="og:url" content="${canonicalUrl}">
+          <meta property="og:title" content="${title}">
+          <meta property="og:description" content="${description}">
+          <meta property="og:image" content="${imageUrl}">
+          <meta property="og:image:width" content="1200">
+          <meta property="og:image:height" content="630">
+          <meta property="og:locale" content="th_TH">
+          <meta property="og:site_name" content="haban.love - ระบบแจ้งและตามหาสุนัขหาย">
+          <meta property="fb:app_id" content="297302183484420">
+          
+          <!-- Twitter -->
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:url" content="${canonicalUrl}">
+          <meta name="twitter:title" content="${title}">
+          <meta name="twitter:description" content="${description}">
+          <meta name="twitter:image" content="${imageUrl}">
+          
+          <!-- Canonical -->
+          <link rel="canonical" href="${canonicalUrl}">
+        </head>
+        <body>
+          <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <img src="${imageUrl}" alt="${title}" style="max-width: 100%; border-radius: 8px;">
+            <h1>${title}</h1>
+            <p>${description}</p>
+            <p><a href="${canonicalUrl}">View on haban.love</a></p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      return res.send(html);
+    }
+
+    // Regular JSON response
     res.json(dog);
   } catch (error) {
     console.error("Error fetching dog:", error);
