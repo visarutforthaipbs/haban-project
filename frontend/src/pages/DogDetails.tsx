@@ -11,12 +11,14 @@ import {
   VStack,
   useToast,
   Divider,
+  Flex,
 } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { dogApi, DogData } from "../services/api";
 import { FiMapPin, FiCalendar, FiPhone } from "react-icons/fi";
+import ShareButtons from "../components/ShareButtons";
 
 const DogDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -109,6 +111,21 @@ const DogDetails = () => {
                 : "หมดเวลา"}
             </Badge>
           </HStack>
+
+          {/* Share buttons */}
+          <Flex justifyContent="flex-end" mt={2}>
+            <ShareButtons
+              title={`${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
+                dog.name || dog.breed
+              }`}
+              description={`${dog.breed}, ${dog.color}, ${
+                dog.locationName
+              }. ${dog.description.substring(0, 100)}${
+                dog.description.length > 100 ? "..." : ""
+              }`}
+              url={window.location.href}
+            />
+          </Flex>
         </Box>
 
         {/* Images */}

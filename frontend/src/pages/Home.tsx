@@ -16,6 +16,8 @@ import {
   MenuOptionGroup,
   MenuItemOption,
   Badge,
+  Container,
+  Flex,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { FiSearch, FiMap, FiFilter } from "react-icons/fi";
@@ -157,7 +159,7 @@ const Home = () => {
   };
 
   return (
-    <Box>
+    <Box minH="100vh">
       {/* Search and Filter Section */}
       <Box bg="white" py={2} borderBottom="1px" borderColor={borderColor}>
         <HStack spacing={4} justify="center" px={4}>
@@ -210,141 +212,186 @@ const Home = () => {
         </HStack>
       </Box>
 
-      <SimpleGrid
-        columns={{ base: 1, lg: 2 }}
-        spacing={0}
-        minH="600px"
-        h={{ base: "auto", lg: "calc(100vh - 200px)" }}
+      {/* Share Feature Announcement */}
+      <Box
+        bg="blue.50"
+        p={4}
+        mx="auto"
+        maxW="container.xl"
+        mt={4}
+        mb={2}
+        borderRadius="md"
+        border="1px solid"
+        borderColor="blue.200"
+        data-announcement="share-feature"
       >
-        {/* Left Column - Listings */}
-        <Box
-          ref={listingsRef}
-          gridColumn={{ base: "1", lg: "1" }}
-          overflowY="auto"
-          borderRight={{ base: "none", lg: "1px" }}
-          borderColor={borderColor}
-          bg="white"
-          h="100%"
-        >
-          <Box p={4}>
-            <Heading size="md" mb={4}>
-              รายการล่าสุด
+        <Flex alignItems="center" justify="space-between">
+          <Box>
+            <Heading size="sm" color="blue.700" mb={1}>
+              ฟีเจอร์ใหม่: แชร์ในโซเชียลมีเดีย 🎉
             </Heading>
-            <DogListView
-              dogs={filteredDogs}
-              selectedDog={selectedDog}
-              onDogSelect={handleDogSelect}
-              columns={{ base: 1, md: 2, lg: 3 }}
-            />
+            <Text color="blue.600">
+              ตอนนี้คุณสามารถแชร์ข้อมูลสุนัขไปยัง Facebook, LINE และ Twitter
+              ได้แล้ว!
+              ลองใช้ปุ่มแชร์ที่การ์ดสุนัขแต่ละตัวเพื่อช่วยให้เจ้าของและสุนัขหลงกลับมาพบกันเร็วขึ้น
+            </Text>
           </Box>
-        </Box>
-
-        {/* Right Column - Map */}
-        <Box
-          position="relative"
-          h={{ base: "400px", lg: "100%" }}
-          gridColumn={{ base: "1", lg: "2" }}
-        >
-          <MapContainer
-            center={DEFAULT_CENTER}
-            zoom={13}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <MapComponent selectedDog={selectedDog} />
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-            {filteredDogs.map((dog) => (
-              <Marker
-                key={dog._id}
-                position={[
-                  dog.location.coordinates[1],
-                  dog.location.coordinates[0],
-                ]}
-                icon={
-                  selectedDog?._id === dog._id
-                    ? dog.type === "lost"
-                      ? selectedLostDogIcon
-                      : selectedFoundDogIcon
-                    : dog.type === "lost"
-                    ? lostDogIcon
-                    : foundDogIcon
-                }
-                eventHandlers={{
-                  click: () => handleDogSelect(dog),
-                }}
-              >
-                <Popup>
-                  <Box className="custom-popup" p={2} maxW="200px">
-                    <VStack align="stretch" spacing={2}>
-                      {/* Type badge */}
-                      <Badge
-                        colorScheme={dog.type === "lost" ? "red" : "green"}
-                        fontSize="xs"
-                        px={2}
-                        py={0.5}
-                        borderRadius="full"
-                        alignSelf="flex-start"
-                      >
-                        {dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}
-                      </Badge>
-
-                      {/* Dog name and breed */}
-                      <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
-                        {dog.name || dog.breed}
-                      </Text>
-
-                      {/* Location - most important info */}
-                      <Text fontSize="xs" color="gray.600" noOfLines={1}>
-                        {dog.locationName}
-                      </Text>
-
-                      {/* Details button */}
-                      <Button
-                        as={RouterLink}
-                        to={`/dogs/${dog._id}`}
-                        size="xs"
-                        colorScheme="brand"
-                        width="full"
-                        mt={1}
-                      >
-                        ดูรายละเอียด
-                      </Button>
-                    </VStack>
-                  </Box>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
           <Button
-            as={RouterLink}
-            to="/map"
-            position="absolute"
-            bottom={4}
-            right={4}
-            leftIcon={<FiMap />}
-            colorScheme="brand"
-            size="lg"
-            zIndex={1000}
-            bg="white"
-            color="gray.800"
-            _hover={{ bg: "gray.100" }}
-            boxShadow="md"
+            size="sm"
+            colorScheme="blue"
+            variant="outline"
+            onClick={() => {
+              // Hide the announcement
+              const announcementBox = document.querySelector(
+                '[data-announcement="share-feature"]'
+              ) as HTMLElement;
+              if (announcementBox) {
+                announcementBox.style.display = "none";
+              }
+            }}
           >
-            เปิดแผนที่เต็ม
+            รับทราบแล้ว
           </Button>
-        </Box>
-      </SimpleGrid>
+        </Flex>
+      </Box>
 
-      {/* Potential Matches */}
-      {selectedDog && (
-        <PotentialMatches
-          selectedDog={selectedDog}
-          allDogs={recentDogs}
-          onMatchSelect={handleDogSelect}
-        />
-      )}
+      <Container maxW="container.xl" py={8}>
+        <SimpleGrid
+          columns={{ base: 1, lg: 2 }}
+          spacing={0}
+          minH="600px"
+          h={{ base: "auto", lg: "calc(100vh - 200px)" }}
+        >
+          {/* Left Column - Listings */}
+          <Box
+            ref={listingsRef}
+            gridColumn={{ base: "1", lg: "1" }}
+            overflowY="auto"
+            borderRight={{ base: "none", lg: "1px" }}
+            borderColor={borderColor}
+            bg="white"
+            h="100%"
+          >
+            <Box p={4}>
+              <Heading size="md" mb={4}>
+                รายการล่าสุด
+              </Heading>
+              <DogListView
+                dogs={filteredDogs}
+                selectedDog={selectedDog}
+                onDogSelect={handleDogSelect}
+                columns={{ base: 1, md: 2, lg: 3 }}
+              />
+            </Box>
+          </Box>
+
+          {/* Right Column - Map */}
+          <Box
+            position="relative"
+            h={{ base: "400px", lg: "100%" }}
+            gridColumn={{ base: "1", lg: "2" }}
+          >
+            <MapContainer
+              center={DEFAULT_CENTER}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <MapComponent selectedDog={selectedDog} />
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              />
+              {filteredDogs.map((dog) => (
+                <Marker
+                  key={dog._id}
+                  position={[
+                    dog.location.coordinates[1],
+                    dog.location.coordinates[0],
+                  ]}
+                  icon={
+                    selectedDog?._id === dog._id
+                      ? dog.type === "lost"
+                        ? selectedLostDogIcon
+                        : selectedFoundDogIcon
+                      : dog.type === "lost"
+                      ? lostDogIcon
+                      : foundDogIcon
+                  }
+                  eventHandlers={{
+                    click: () => handleDogSelect(dog),
+                  }}
+                >
+                  <Popup>
+                    <Box className="custom-popup" p={2} maxW="200px">
+                      <VStack align="stretch" spacing={2}>
+                        {/* Type badge */}
+                        <Badge
+                          colorScheme={dog.type === "lost" ? "red" : "green"}
+                          fontSize="xs"
+                          px={2}
+                          py={0.5}
+                          borderRadius="full"
+                          alignSelf="flex-start"
+                        >
+                          {dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}
+                        </Badge>
+
+                        {/* Dog name and breed */}
+                        <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
+                          {dog.name || dog.breed}
+                        </Text>
+
+                        {/* Location - most important info */}
+                        <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                          {dog.locationName}
+                        </Text>
+
+                        {/* Details button */}
+                        <Button
+                          as={RouterLink}
+                          to={`/dogs/${dog._id}`}
+                          size="xs"
+                          colorScheme="brand"
+                          width="full"
+                          mt={1}
+                        >
+                          ดูรายละเอียด
+                        </Button>
+                      </VStack>
+                    </Box>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+            <Button
+              as={RouterLink}
+              to="/map"
+              position="absolute"
+              bottom={4}
+              right={4}
+              leftIcon={<FiMap />}
+              colorScheme="brand"
+              size="lg"
+              zIndex={1000}
+              bg="white"
+              color="gray.800"
+              _hover={{ bg: "gray.100" }}
+              boxShadow="md"
+            >
+              เปิดแผนที่เต็ม
+            </Button>
+          </Box>
+        </SimpleGrid>
+
+        {/* Potential Matches */}
+        {selectedDog && (
+          <PotentialMatches
+            selectedDog={selectedDog}
+            allDogs={recentDogs}
+            onMatchSelect={handleDogSelect}
+          />
+        )}
+      </Container>
     </Box>
   );
 };
