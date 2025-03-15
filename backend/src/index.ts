@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -11,6 +11,7 @@ import dogRoutes from "./routes/dogRoutes";
 import authRoutes from "./routes/authRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
 import userRoutes from "./routes/userRoutes";
+import { socialMediaPrerender } from "./middleware";
 
 // Load environment variables
 dotenv.config();
@@ -44,6 +45,9 @@ app.use(cookieParser());
 
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// Social media prerender middleware
+app.use(socialMediaPrerender);
 
 // Database connection
 mongoose
@@ -84,20 +88,13 @@ app.get("/health", (req, res) => {
 });
 
 // Error handling middleware
-app.use(
-  (
-    err: Error,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err.stack);
-    res.status(500).json({
-      message: "Something went wrong!",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
-  }
-);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: "Something went wrong!",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;

@@ -1,6 +1,6 @@
 import { Express } from "express-serve-static-core";
 import { Multer } from "multer";
-import "express";
+import * as expressOriginal from "express";
 
 declare global {
   namespace Express {
@@ -21,6 +21,9 @@ declare global {
       params?: any;
       headers?: any;
       cookies?: any;
+      originalUrl: string;
+      protocol: string;
+      get(name: string): string | undefined;
     }
 
     interface Response {
@@ -46,3 +49,33 @@ export interface AuthenticatedRequest extends Express.Request {
   headers?: any;
   cookies?: any;
 }
+
+// Extend the express module
+declare module "express" {
+  export interface Request {
+    originalUrl: string;
+    protocol: string;
+    get(name: string): string | undefined;
+  }
+
+  export interface Response {
+    status(code: number): Response;
+    json(body: any): Response;
+    send(body: any): Response;
+  }
+
+  export interface NextFunction {
+    (err?: any): void;
+  }
+
+  export function json(): expressOriginal.RequestHandler;
+  export function urlencoded(options: {
+    extended: boolean;
+  }): expressOriginal.RequestHandler;
+  export function static(
+    root: string,
+    options?: any
+  ): expressOriginal.RequestHandler;
+}
+
+export {};
