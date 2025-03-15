@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import multer from "multer";
 import {
   createDog,
@@ -41,6 +41,10 @@ const upload = multer({
 // Public routes
 router.get("/", optionalAuth, validateGetDogs, getDogs);
 router.get("/search", validateSearchDogs, searchDogs);
+
+// Get all saved dogs - IMPORTANT: This must come BEFORE the /:id route
+router.get("/saved", verifyToken, getSavedDogs);
+
 router.get("/:id", validateDogId, getDog);
 
 // Protected routes
@@ -66,8 +70,5 @@ router.post("/:id/save", verifyToken, saveDog);
 
 // Unsave a dog
 router.delete("/:id/save", verifyToken, unsaveDog);
-
-// Get all saved dogs
-router.get("/saved", verifyToken, getSavedDogs);
 
 export default router;
