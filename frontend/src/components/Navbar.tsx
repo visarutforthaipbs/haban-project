@@ -183,7 +183,11 @@ const Navbar = () => {
                 variant="link"
                 cursor="pointer"
               >
-                <Avatar size="sm" name={user?.name || "User"} />
+                <Avatar
+                  size="sm"
+                  name={user?.name || "User"}
+                  src={user?.profileImage || undefined}
+                />
               </MenuButton>
               <MenuList>
                 <MenuItem as={RouterLink} to="/profile" icon={<FiUser />}>

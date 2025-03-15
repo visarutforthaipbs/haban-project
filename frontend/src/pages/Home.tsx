@@ -26,7 +26,7 @@ import { Icon, LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "../styles/map.css";
 import { DogData, dogApi } from "../services/api";
-import DogListView from "../components/DogListView";
+import DogListViewWithUser from "../components/DogListViewWithUser";
 import { PotentialMatches } from "../components/PotentialMatches";
 
 // Custom markers for lost and found dogs
@@ -235,7 +235,7 @@ const Home = () => {
               <Heading size="md" mb={4}>
                 รายการล่าสุด
               </Heading>
-              <DogListView
+              <DogListViewWithUser
                 dogs={filteredDogs}
                 selectedDog={selectedDog}
                 onDogSelect={handleDogSelect}
