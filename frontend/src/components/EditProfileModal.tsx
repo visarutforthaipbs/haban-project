@@ -125,7 +125,7 @@ const EditProfileModal = ({
       }
 
       // Make an API call to update the user profile using the configured axios instance
-      await api.patch("/api/users/profile", formData, {
+      await api.patch("/users/profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
