@@ -160,7 +160,7 @@ export const DogListView = ({
                     }. ${dog.description.substring(0, 100)}${
                       dog.description.length > 100 ? "..." : ""
                     }`}
-                    url={`${window.location.origin}/dogs/${dog._id}`}
+                    url={`/dogs/${dog._id}`}
                   />
                 </Box>
               </Flex>

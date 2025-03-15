@@ -17,7 +17,6 @@ import {
   MenuItemOption,
   Badge,
   Container,
-  Flex,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { FiSearch, FiMap, FiFilter } from "react-icons/fi";
@@ -212,53 +211,10 @@ const Home = () => {
         </HStack>
       </Box>
 
-      {/* Share Feature Announcement */}
-      <Box
-        bg="blue.50"
-        p={4}
-        mx="auto"
-        maxW="container.xl"
-        mt={4}
-        mb={2}
-        borderRadius="md"
-        border="1px solid"
-        borderColor="blue.200"
-        data-announcement="share-feature"
-      >
-        <Flex alignItems="center" justify="space-between">
-          <Box>
-            <Heading size="sm" color="blue.700" mb={1}>
-              ฟีเจอร์ใหม่: แชร์ในโซเชียลมีเดีย 🎉
-            </Heading>
-            <Text color="blue.600">
-              ตอนนี้คุณสามารถแชร์ข้อมูลสุนัขไปยัง Facebook, LINE และ Twitter
-              ได้แล้ว!
-              ลองใช้ปุ่มแชร์ที่การ์ดสุนัขแต่ละตัวเพื่อช่วยให้เจ้าของและสุนัขหลงกลับมาพบกันเร็วขึ้น
-            </Text>
-          </Box>
-          <Button
-            size="sm"
-            colorScheme="blue"
-            variant="outline"
-            onClick={() => {
-              // Hide the announcement
-              const announcementBox = document.querySelector(
-                '[data-announcement="share-feature"]'
-              ) as HTMLElement;
-              if (announcementBox) {
-                announcementBox.style.display = "none";
-              }
-            }}
-          >
-            รับทราบแล้ว
-          </Button>
-        </Flex>
-      </Box>
-
       <Container maxW="container.xl" py={8}>
         <SimpleGrid
-          columns={{ base: 1, lg: 2 }}
-          spacing={0}
+          templateColumns={{ base: "1fr", lg: "3fr 2fr" }}
+          spacing={6}
           minH="600px"
           h={{ base: "auto", lg: "calc(100vh - 200px)" }}
         >

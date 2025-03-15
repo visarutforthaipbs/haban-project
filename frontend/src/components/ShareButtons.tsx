@@ -28,6 +28,25 @@ export const ShareButtons = ({
   const { onCopy, hasCopied } = useClipboard(url);
   const toast = useToast();
 
+  // Make sure we have an absolute URL for sharing
+  const getAbsoluteUrl = (relativeUrl: string) => {
+    // If the URL already starts with http:// or https://, it's already absolute
+    if (
+      relativeUrl.startsWith("http://") ||
+      relativeUrl.startsWith("https://")
+    ) {
+      return relativeUrl;
+    }
+
+    // Otherwise, prepend the origin
+    return `${window.location.origin}${
+      relativeUrl.startsWith("/") ? "" : "/"
+    }${relativeUrl}`;
+  };
+
+  // Ensure the URL is absolute
+  const absoluteUrl = getAbsoluteUrl(url);
+
   // Handler for native share API (mobile devices)
   const handleNativeShare = async () => {
     if (navigator && "share" in navigator) {
@@ -35,7 +54,7 @@ export const ShareButtons = ({
         await navigator.share({
           title,
           text: description,
-          url,
+          url: absoluteUrl,
         });
         toast({
           title: "แชร์สำเร็จ",
@@ -48,11 +67,11 @@ export const ShareButtons = ({
     }
   };
 
-  // Handler for Facebook sharing
+  // Handler for Facebook sharing - use Facebook's recommended format
   const handleFacebookShare = () => {
     const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      url
-    )}&quote=${encodeURIComponent(description)}`;
+      absoluteUrl
+    )}`;
     window.open(fbShareUrl, "_blank", "width=600,height=400");
   };
 
@@ -61,26 +80,39 @@ export const ShareButtons = ({
     const tweetText = `${title} - ${description}`;
     const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       tweetText
-    )}&url=${encodeURIComponent(url)}`;
+    )}&url=${encodeURIComponent(absoluteUrl)}`;
     window.open(twitterShareUrl, "_blank", "width=600,height=400");
   };
 
   // Handler for LINE sharing
   const handleLineShare = () => {
     const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
-      url
+      absoluteUrl
     )}&text=${encodeURIComponent(`${title} - ${description}`)}`;
     window.open(lineShareUrl, "_blank", "width=600,height=600");
   };
 
   // Handler for copying link
   const handleCopyLink = () => {
-    onCopy();
-    toast({
-      title: "คัดลอกลิงก์แล้ว",
-      status: "success",
-      duration: 2000,
-    });
+    // Use the clipboard API to copy the absolute URL
+    navigator.clipboard
+      .writeText(absoluteUrl)
+      .then(() => {
+        toast({
+          title: "คัดลอกลิงก์แล้ว",
+          status: "success",
+          duration: 2000,
+        });
+      })
+      .catch(() => {
+        // Fallback to useClipboard hook if the Clipboard API fails
+        onCopy();
+        toast({
+          title: "คัดลอกลิงก์แล้ว",
+          status: "success",
+          duration: 2000,
+        });
+      });
   };
 
   return (

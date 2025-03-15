@@ -51,7 +51,7 @@ const DogDetails = () => {
     fetchDog();
   }, [id, toast]);
 
-  const formatDate = (date: string | undefined) => {
+  const formatDate = (date: string | Date | undefined) => {
     if (!date) return "ไม่ระบุ";
     return new Date(date).toLocaleDateString("th-TH", {
       year: "numeric",
@@ -123,7 +123,7 @@ const DogDetails = () => {
               }. ${dog.description.substring(0, 100)}${
                 dog.description.length > 100 ? "..." : ""
               }`}
-              url={window.location.href}
+              url={`/dogs/${dog._id}`}
             />
           </Flex>
         </Box>
