@@ -13,8 +13,9 @@ import {
   Divider,
   Flex,
 } from "@chakra-ui/react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../contexts/AuthContext";
 import { dogApi, DogData } from "../services/api";
 import { FiMapPin, FiCalendar, FiPhone } from "react-icons/fi";
@@ -25,7 +26,6 @@ const DogDetails = () => {
   const [dog, setDog] = useState<DogData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const navigate = useNavigate();
   const toast = useToast();
 
   useEffect(() => {
@@ -35,7 +35,8 @@ const DogDetails = () => {
           const dogData = await dogApi.getDog(id);
           setDog(dogData);
         }
-      } catch (error) {
+      } catch (err) {
+        console.error("Error fetching dog details:", err);
         toast({
           title: "Error",
           description: "Failed to load dog details",
@@ -78,8 +79,68 @@ const DogDetails = () => {
     );
   }
 
+  // Create metadata for sharing
+  const pageTitle = `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
+    dog.name || dog.breed
+  } | haban.love`;
+  const pageDescription = `${dog.breed}, ${dog.color}, ${
+    dog.locationName
+  }. ${dog.description.substring(0, 150)}${
+    dog.description.length > 150 ? "..." : ""
+  }`;
+  const pageImage =
+    dog.photos && dog.photos.length > 0
+      ? dog.photos[0]
+      : "https://www.haban.love/fbthumnail-1.png";
+  const pageUrl = `${window.location.origin}/dogs/${dog._id}`;
+
+  // Button click handler
+  const handleStatusUpdate = async () => {
+    if (!dog) return;
+
+    try {
+      const newStatus = dog.status === "active" ? "resolved" : "active";
+      await dogApi.updateDogStatus(dog._id, newStatus);
+      setDog((prev) => (prev ? { ...prev, status: newStatus } : null));
+      toast({
+        title: "Status updated",
+        status: "success",
+        duration: 3000,
+      });
+    } catch (err) {
+      console.error("Error updating status:", err);
+      toast({
+        title: "Error updating status",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
+
   return (
     <Container maxW="container.md" py={8}>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+
+        {/* Facebook Open Graph */}
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={pageImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="th_TH" />
+        <meta property="fb:app_id" content="297302183484420" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={pageImage} />
+      </Helmet>
+
       <Stack spacing={8}>
         {/* Header */}
         <Box>
@@ -115,15 +176,9 @@ const DogDetails = () => {
           {/* Share buttons */}
           <Flex justifyContent="flex-end" mt={2}>
             <ShareButtons
-              title={`${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
-                dog.name || dog.breed
-              }`}
-              description={`${dog.breed}, ${dog.color}, ${
-                dog.locationName
-              }. ${dog.description.substring(0, 100)}${
-                dog.description.length > 100 ? "..." : ""
-              }`}
-              url={`/dogs/${dog._id}`}
+              title={pageTitle}
+              description={pageDescription}
+              url={pageUrl}
             />
           </Flex>
         </Box>
@@ -216,27 +271,7 @@ const DogDetails = () => {
             <HStack justify="flex-end" pt={4}>
               <Button
                 colorScheme={dog.status === "active" ? "blue" : "green"}
-                onClick={async () => {
-                  try {
-                    const newStatus =
-                      dog.status === "active" ? "resolved" : "active";
-                    await dogApi.updateDogStatus(dog._id, newStatus);
-                    setDog((prev) =>
-                      prev ? { ...prev, status: newStatus } : null
-                    );
-                    toast({
-                      title: "Status updated",
-                      status: "success",
-                      duration: 3000,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "Error updating status",
-                      status: "error",
-                      duration: 3000,
-                    });
-                  }
-                }}
+                onClick={handleStatusUpdate}
               >
                 {dog.status === "active"
                   ? "ทำเครื่องหมายว่าพบแล้ว"
