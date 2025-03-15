@@ -14,7 +14,16 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { DogData } from "../services/api";
-// import ShareButtons from "./ShareButtons"; // Temporarily removed
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+// User information interface
+interface UserInfo {
+  id: string;
+  name: string;
+  profileImage?: string;
+  bio?: string;
+}
 
 interface DogListViewProps {
   dogs: DogData[];
@@ -39,9 +48,77 @@ export const DogListViewWithUser = ({
   onDogSelect,
   columns = { base: 1, md: 2, lg: 4, xl: 5 },
 }: DogListViewProps) => {
+  const [userInfoMap, setUserInfoMap] = useState<Record<string, UserInfo>>({});
+  const [fetchedUserIds, setFetchedUserIds] = useState<Set<string>>(new Set());
+
+  // Fetch user information for all unique userIds
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        // Get unique user IDs that we haven't tried to fetch yet
+        const uniqueUserIds = [
+          ...new Set(
+            dogs
+              .map((dog) => dog.userId)
+              .filter(
+                (id): id is string =>
+                  Boolean(id) &&
+                  typeof id === "string" &&
+                  !fetchedUserIds.has(id)
+              )
+          ),
+        ];
+
+        if (uniqueUserIds.length === 0) return;
+
+        // Track which IDs we've attempted to fetch to avoid repeated failed requests
+        const newFetchedIds = new Set(fetchedUserIds);
+
+        // Create a temporary object to store user info
+        const userMap = { ...userInfoMap };
+
+        // Fetch user info for each userId
+        for (const userId of uniqueUserIds) {
+          try {
+            newFetchedIds.add(userId);
+
+            const response = await axios.get(
+              `${import.meta.env.VITE_API_URL}/users/${userId}`
+            );
+
+            if (response.data) {
+              userMap[userId] = {
+                id: response.data.id,
+                name: response.data.name,
+                profileImage: response.data.profileImage,
+                bio: response.data.bio,
+              };
+            }
+          } catch (error) {
+            // Just log the error but don't retry this userId
+            console.error(`Error fetching user info for ${userId}:`, error);
+          }
+        }
+
+        setUserInfoMap(userMap);
+        setFetchedUserIds(newFetchedIds);
+      } catch (error) {
+        console.error("Error fetching user information:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [dogs, fetchedUserIds, userInfoMap]);
+
   return (
     <SimpleGrid columns={columns} spacing={6}>
       {dogs.map((dog) => {
+        // Get user info if available
+        const userInfo =
+          dog.userId && typeof dog.userId === "string"
+            ? userInfoMap[dog.userId]
+            : null;
+
         return (
           <Box
             key={dog._id}
@@ -112,12 +189,23 @@ export const DogListViewWithUser = ({
                   </Badge>
                 </Flex>
 
-                {/* User information - simplified until backend is updated */}
+                {/* User information */}
                 <HStack spacing={2} mt={1}>
-                  <Avatar size="xs" name={"ผู้ใช้"} />
-                  <Tooltip label="ข้อมูลผู้โพสต์" hasArrow>
+                  <Avatar
+                    size="xs"
+                    name={userInfo?.name || "ผู้ใช้"}
+                    src={userInfo?.profileImage}
+                  />
+                  <Tooltip
+                    label={
+                      userInfo
+                        ? `โพสต์โดย: ${userInfo.name}`
+                        : "ข้อมูลผู้โพสต์ไม่พร้อมใช้งาน"
+                    }
+                    hasArrow
+                  >
                     <Text fontSize="sm" color="gray.600" noOfLines={1}>
-                      ผู้ใช้งาน
+                      {userInfo?.name || "ผู้ใช้งาน"}
                     </Text>
                   </Tooltip>
                 </HStack>

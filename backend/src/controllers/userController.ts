@@ -89,3 +89,37 @@ export const updateProfile = async (
     res.status(500).json({ message: "Server error" });
   }
 };
+
+/**
+ * Get public user information by ID
+ * This endpoint returns only public information about a user
+ */
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Validate the ID
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    // Find the user
+    const user = await User.findById(id).select("-password -email -__v");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return only public user info
+    res.json({
+      id: user._id,
+      name: user.name,
+      profileImage: user.profileImage,
+      bio: user.bio,
+      // We exclude private fields like email, contactInfo, etc.
+    });
+  } catch (error) {
+    console.error("Get user by ID error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const multer = require("multer");
-const { updateProfile } = require("../controllers/userController");
+const { updateProfile, getUserById } = require("../controllers/userController");
 const { verifyToken } = require("../middleware/auth");
 const { body } = require("express-validator");
 const { handleValidationErrors } = require("../middleware/validation");
@@ -31,6 +31,9 @@ const validateProfileUpdate = [
     .withMessage("Preferred contact must be a string"),
   handleValidationErrors,
 ];
+
+// Public route to get user by ID (no authentication required)
+router.get("/:id", getUserById);
 
 // Protected route for updating user profile
 router.patch(
