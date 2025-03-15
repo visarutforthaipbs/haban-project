@@ -11,6 +11,7 @@ import dogRoutes from "./routes/dogRoutes";
 import authRoutes from "./routes/authRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
 import userRoutes from "./routes/userRoutes";
+import previewRoutes from "./routes/previewRoutes";
 import { socialMediaPrerender } from "./middleware";
 
 // Load environment variables
@@ -46,8 +47,11 @@ app.use(cookieParser());
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Social media prerender middleware
+// Social media prerender middleware (for API routes)
 app.use(socialMediaPrerender);
+
+// Social media preview direct routes (for frontend routes)
+app.use("/preview", previewRoutes);
 
 // Database connection
 mongoose
