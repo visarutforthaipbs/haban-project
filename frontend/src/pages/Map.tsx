@@ -196,7 +196,7 @@ const MapPage = () => {
           dogs={filteredDogs}
           selectedDog={selectedDog}
           onDogSelect={handleDogSelect}
-          columns={{ base: 1, md: 2, lg: 2, xl: 3 }}
+          columns={{ base: 1, md: 1, lg: 1, xl: 1 }}
         />
       </Box>
     </VStack>

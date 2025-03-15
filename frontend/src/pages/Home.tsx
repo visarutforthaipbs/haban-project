@@ -239,7 +239,7 @@ const Home = () => {
                 dogs={filteredDogs}
                 selectedDog={selectedDog}
                 onDogSelect={handleDogSelect}
-                columns={{ base: 1, md: 2, lg: 2, xl: 3 }}
+                columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
               />
             </Box>
           </Box>
