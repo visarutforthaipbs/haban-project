@@ -161,59 +161,61 @@ const Home = () => {
     <Box minH="100vh">
       {/* Search and Filter Section */}
       <Box bg="white" py={2} borderBottom="1px" borderColor={borderColor}>
-        <HStack spacing={4} justify="center" px={4}>
-          <InputGroup maxW={{ base: "100%", md: "600px" }}>
-            <InputLeftElement pointerEvents="none">
-              <FiSearch color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="ค้นหาสุนัข..."
-              bg={bgColor}
-              border="1px"
-              borderColor={borderColor}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </InputGroup>
-          <Menu closeOnSelect={false}>
-            <MenuButton as={Button} leftIcon={<FiFilter />} variant="outline">
-              ตัวกรอง
-            </MenuButton>
-            <MenuList minWidth="240px">
-              <MenuOptionGroup
-                title="ประเภท"
-                type="checkbox"
-                value={filters.type}
-                onChange={(value) => {
-                  setFilters({ ...filters, type: value as string[] });
-                  // Clear search when filters change to avoid confusion
-                  setSearchQuery("");
-                }}
-              >
-                <MenuItemOption value="lost">สุนัขหาย</MenuItemOption>
-                <MenuItemOption value="found">พบสุนัข</MenuItemOption>
-              </MenuOptionGroup>
-              <MenuOptionGroup
-                title="สถานะ"
-                type="checkbox"
-                value={filters.status}
-                onChange={(value) => {
-                  setFilters({ ...filters, status: value as string[] });
-                  // Clear search when filters change to avoid confusion
-                  setSearchQuery("");
-                }}
-              >
-                <MenuItemOption value="active">กำลังค้นหา</MenuItemOption>
-                <MenuItemOption value="resolved">พบเจอแล้ว</MenuItemOption>
-              </MenuOptionGroup>
-            </MenuList>
-          </Menu>
-        </HStack>
+        <Box maxW="100%" px={{ base: 4, md: 6, lg: 8 }} mx="auto">
+          <HStack spacing={4} justify="space-between">
+            <InputGroup maxW={{ base: "100%", md: "600px" }}>
+              <InputLeftElement pointerEvents="none">
+                <FiSearch color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="ค้นหาสุนัข..."
+                bg={bgColor}
+                border="1px"
+                borderColor={borderColor}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </InputGroup>
+            <Menu closeOnSelect={false}>
+              <MenuButton as={Button} leftIcon={<FiFilter />} variant="outline">
+                ตัวกรอง
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuOptionGroup
+                  title="ประเภท"
+                  type="checkbox"
+                  value={filters.type}
+                  onChange={(value) => {
+                    setFilters({ ...filters, type: value as string[] });
+                    // Clear search when filters change to avoid confusion
+                    setSearchQuery("");
+                  }}
+                >
+                  <MenuItemOption value="lost">สุนัขหาย</MenuItemOption>
+                  <MenuItemOption value="found">พบสุนัข</MenuItemOption>
+                </MenuOptionGroup>
+                <MenuOptionGroup
+                  title="สถานะ"
+                  type="checkbox"
+                  value={filters.status}
+                  onChange={(value) => {
+                    setFilters({ ...filters, status: value as string[] });
+                    // Clear search when filters change to avoid confusion
+                    setSearchQuery("");
+                  }}
+                >
+                  <MenuItemOption value="active">กำลังค้นหา</MenuItemOption>
+                  <MenuItemOption value="resolved">พบเจอแล้ว</MenuItemOption>
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+          </HStack>
+        </Box>
       </Box>
 
-      <Container maxW="container.xl" py={8}>
+      <Container maxW="100%" px={{ base: 4, md: 6, lg: 8 }} py={8}>
         <SimpleGrid
-          templateColumns={{ base: "1fr", lg: "3fr 2fr" }}
+          templateColumns={{ base: "1fr", lg: "2fr 1fr" }}
           spacing={6}
           minH="600px"
           h={{ base: "auto", lg: "calc(100vh - 200px)" }}
@@ -227,6 +229,7 @@ const Home = () => {
             borderColor={borderColor}
             bg="white"
             h="100%"
+            w="100%"
           >
             <Box p={4}>
               <Heading size="md" mb={4}>
@@ -236,7 +239,7 @@ const Home = () => {
                 dogs={filteredDogs}
                 selectedDog={selectedDog}
                 onDogSelect={handleDogSelect}
-                columns={{ base: 1, md: 2, lg: 3 }}
+                columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
               />
             </Box>
           </Box>
@@ -246,6 +249,7 @@ const Home = () => {
             position="relative"
             h={{ base: "400px", lg: "100%" }}
             gridColumn={{ base: "1", lg: "2" }}
+            w="100%"
           >
             <MapContainer
               center={DEFAULT_CENTER}

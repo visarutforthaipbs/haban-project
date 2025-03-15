@@ -17,7 +17,7 @@ interface DogListViewProps {
   dogs: DogData[];
   selectedDog: DogData | null;
   onDogSelect: (dog: DogData) => void;
-  columns?: { base: number; md: number; lg: number };
+  columns?: { base: number; md: number; lg: number; xl: number };
 }
 
 const formatDate = (date: string) => {
@@ -34,7 +34,7 @@ export const DogListView = ({
   dogs,
   selectedDog,
   onDogSelect,
-  columns = { base: 1, md: 2, lg: 3 },
+  columns = { base: 1, md: 2, lg: 4, xl: 5 },
 }: DogListViewProps) => {
   const navigate = useNavigate();
 
