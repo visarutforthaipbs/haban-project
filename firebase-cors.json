@@ -1,0 +1,17 @@
+[
+  {
+    "origin": [
+      "https://www.haban.love",
+      "https://haban.love",
+      "http://localhost:5173"
+    ],
+    "method": ["GET", "HEAD", "DELETE", "PUT", "POST"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Content-Encoding",
+      "Content-Disposition"
+    ]
+  }
+]
