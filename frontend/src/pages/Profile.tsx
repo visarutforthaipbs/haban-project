@@ -192,7 +192,7 @@ const Profile = () => {
                     dogs={lostDogs}
                     selectedDog={null}
                     onDogSelect={() => {}}
-                    columns={{ base: 1, md: 2, lg: 2 }}
+                    columns={{ base: 1, md: 2, lg: 2, xl: 2 }}
                   />
                 ) : (
                   <Text color="gray.600" textAlign="center">
@@ -208,7 +208,7 @@ const Profile = () => {
                     dogs={foundDogs}
                     selectedDog={null}
                     onDogSelect={() => {}}
-                    columns={{ base: 1, md: 2, lg: 2 }}
+                    columns={{ base: 1, md: 2, lg: 2, xl: 2 }}
                   />
                 ) : (
                   <Text color="gray.600" textAlign="center">

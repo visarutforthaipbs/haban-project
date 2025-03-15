@@ -11,8 +11,8 @@ import { authApi } from "../services/authService";
 import {
   signInWithGoogle,
   signInWithFacebook,
-  logoutFromFirebase,
-  onFirebaseAuthStateChanged,
+  signOutFirebase,
+  onAuthStateChange,
 } from "../services/firebase";
 import { User as FirebaseUser } from "firebase/auth";
 
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Initialize Firebase Auth listener
   useEffect(() => {
-    const unsubscribe = onFirebaseAuthStateChanged(async (firebaseUser) => {
+    const unsubscribe = onAuthStateChange(async (firebaseUser) => {
       if (firebaseUser) {
         // User is signed in with Firebase
         await handleFirebaseAuth(firebaseUser);
@@ -271,7 +271,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(null);
 
       // Log out from Firebase Auth
-      await logoutFromFirebase();
+      await signOutFirebase();
 
       // Also logout from Facebook if user was logged in with Facebook
       if (window.FB) {

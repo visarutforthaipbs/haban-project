@@ -22,7 +22,6 @@ const firebaseConfig = {
   appId: "1:520020633738:web:dad2ffc99784ccd198a573",
   measurementId: "G-9ZJZPWPNX6",
 };
-FIREBASE_MEASUREMENT_ID;
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -35,36 +34,39 @@ const facebookProvider = new FacebookAuthProvider();
 
 // Add additional Facebook permissions/scopes
 facebookProvider.addScope("email");
-facebookProvider.addScope("public_profile");
 
-// Set custom parameters for better UX
-facebookProvider.setCustomParameters({
-  display: "popup", // Display mode: popup, page, touch, or wap
-  auth_type: "rerequest", // Force re-authentication
-  locale: "th_TH", // Set locale to Thai
-});
-
-// Authentication functions
-export const signInWithGoogle = (): Promise<UserCredential> => {
+// Sign in with Google
+export const signInWithGoogle = async (): Promise<UserCredential> => {
   return signInWithPopup(auth, googleProvider);
 };
 
-export const signInWithFacebook = (): Promise<UserCredential> => {
+// Sign in with Facebook
+export const signInWithFacebook = async (): Promise<UserCredential> => {
   return signInWithPopup(auth, facebookProvider);
 };
 
-export const logoutFromFirebase = (): Promise<void> => {
+// Sign out
+export const signOutFirebase = async (): Promise<void> => {
   return signOut(auth);
 };
 
+// Listen for auth state changes
+export const onAuthStateChange = (
+  callback: (user: User | null) => void
+): (() => void) => {
+  return onAuthStateChanged(auth, callback);
+};
+
+// Get current user
 export const getCurrentFirebaseUser = (): User | null => {
   return auth.currentUser;
 };
 
-export const onFirebaseAuthStateChanged = (
-  callback: (user: User | null) => void
-): (() => void) => {
-  return onAuthStateChanged(auth, callback);
+// Get ID token
+export const getIdToken = async (): Promise<string | null> => {
+  const user = auth.currentUser;
+  if (!user) return null;
+  return user.getIdToken();
 };
 
 export { auth, analytics };
