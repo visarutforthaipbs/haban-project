@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Text,
@@ -7,13 +7,19 @@ import {
   useColorModeValue,
   Link,
   CloseButton,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 
 /**
  * Cookie consent banner for GDPR compliance
  */
 export default function CookieConsent() {
   const [showConsent, setShowConsent] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const clickCount = useRef(0);
+  const clickTimer = useRef<number | null>(null);
 
   useEffect(() => {
     // Check if user has already given consent
@@ -21,6 +27,15 @@ export default function CookieConsent() {
     if (!hasConsent) {
       setShowConsent(true);
     }
+
+    // Check if user is admin (basic check - enhance with actual auth later)
+    const checkIfAdmin = () => {
+      // This is a placeholder - implement proper admin check
+      const isAdminUser = localStorage.getItem("isAdmin") === "true";
+      setIsAdmin(isAdminUser);
+    };
+
+    checkIfAdmin();
   }, []);
 
   const handleAccept = () => {
@@ -33,6 +48,23 @@ export default function CookieConsent() {
   const handleDecline = () => {
     localStorage.setItem("cookieConsent", "false");
     setShowConsent(false);
+  };
+
+  // For admin use only - triple-click to set admin mode (for testing)
+  const handleTextClick = () => {
+    clickCount.current += 1;
+
+    if (clickTimer.current) {
+      window.clearTimeout(clickTimer.current);
+    }
+
+    clickTimer.current = window.setTimeout(() => {
+      if (clickCount.current >= 3) {
+        localStorage.setItem("isAdmin", "true");
+        setIsAdmin(true);
+      }
+      clickCount.current = 0;
+    }, 500);
   };
 
   const bgColor = useColorModeValue("white", "gray.800");
@@ -59,7 +91,7 @@ export default function CookieConsent() {
         justify="space-between"
       >
         <Box mr={4} mb={{ base: 4, md: 0 }}>
-          <Text fontSize="sm" color={textColor}>
+          <Text fontSize="sm" color={textColor} onClick={handleTextClick}>
             เราใช้คุกกี้เพื่อพัฒนาประสบการณ์การใช้งานของคุณ
             ด้วยการใช้เว็บไซต์นี้ คุณยินยอมให้เราใช้คุกกี้ตาม{" "}
             <Link color="blue.500" href="/privacy-policy">
@@ -69,6 +101,23 @@ export default function CookieConsent() {
           </Text>
         </Box>
         <Flex>
+          {isAdmin && (
+            <Tooltip label="View Firebase Analytics Dashboard">
+              <IconButton
+                aria-label="View Analytics"
+                icon={<InfoIcon />}
+                size="sm"
+                variant="ghost"
+                mr={2}
+                onClick={() =>
+                  window.open(
+                    "https://console.firebase.google.com/project/haban-pics/analytics/app/web:G-9ZJZPWPNX6/overview",
+                    "_blank"
+                  )
+                }
+              />
+            </Tooltip>
+          )}
           <Button size="sm" colorScheme="blue" onClick={handleAccept} mr={2}>
             ยอมรับ
           </Button>

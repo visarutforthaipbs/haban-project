@@ -1,4 +1,4 @@
-// Google Analytics service
+// Google Analytics service for Firebase integration
 
 // Define types for window gtag
 declare global {
@@ -34,6 +34,9 @@ export const initGA = (id: string): void => {
     gtag("js", new Date());
     gtag("config", id, {
       page_path: window.location.pathname,
+      // Add Firebase-specific configurations
+      send_page_view: true,
+      allow_google_signals: true,
     });
 
     // Add gtag to window
@@ -50,7 +53,7 @@ export const trackPageView = (url: string): void => {
   }
 };
 
-// Track events
+// Track events (Firebase Analytics format)
 export const trackEvent = (
   action: string,
   category: string,
@@ -64,6 +67,33 @@ export const trackEvent = (
       value: value,
     });
   }
+};
+
+// Firebase specific event tracking
+export const trackFirebaseEvent = (
+  eventName: string,
+  eventParams?: Record<string, unknown>
+): void => {
+  if (typeof window !== "undefined" && window.gtag && hasConsent()) {
+    window.gtag("event", eventName, eventParams);
+  }
+};
+
+// Examples of common Firebase events for your application
+export const trackLogin = (method: string): void => {
+  trackFirebaseEvent("login", { method });
+};
+
+export const trackSignUp = (method: string): void => {
+  trackFirebaseEvent("sign_up", { method });
+};
+
+export const trackDogSearch = (searchParams: Record<string, unknown>): void => {
+  trackFirebaseEvent("search", searchParams);
+};
+
+export const trackDogReport = (reportType: string): void => {
+  trackFirebaseEvent("dog_report", { type: reportType });
 };
 
 // Track user engagement
