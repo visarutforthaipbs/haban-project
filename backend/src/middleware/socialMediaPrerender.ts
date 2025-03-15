@@ -32,7 +32,7 @@ function isSocialMediaBot(userAgent: string | undefined): boolean {
  */
 export function socialMediaPrerender(req: any, res: any, next: any) {
   const userAgent = req.get("user-agent");
-  console.log(`Middleware called with user-agent: ${userAgent}`);
+  console.log(`Social Media Prerender Middleware - UA: ${userAgent}`);
 
   // Only process requests from social media bots
   if (!isSocialMediaBot(userAgent)) {
@@ -69,30 +69,39 @@ export function socialMediaPrerender(req: any, res: any, next: any) {
 
       // Generate metadata
       const title = dog.name
-        ? `${dog.name} - ${dog.type === "lost" ? "Lost" : "Found"} ${dog.breed}`
-        : `${dog.type === "lost" ? "Lost" : "Found"} ${dog.breed}`;
+        ? `${dog.name} - ${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${
+            dog.breed
+          }`
+        : `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed}`;
 
       const description =
         dog.description ||
-        `${dog.type === "lost" ? "Lost" : "Found"} ${dog.breed} in ${
+        `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"} ${dog.breed} จาก ${
           dog.locationName
         }`;
 
       // Get the first photo or use a default
       const imageUrl =
         dog.photos && dog.photos.length > 0
-          ? `${req.protocol}://${req.get("host")}${dog.photos[0]}`
+          ? dog.photos[0].startsWith("http")
+            ? dog.photos[0]
+            : `${req.protocol}://${req.get("host")}${dog.photos[0]}`
           : `${req.protocol}://${req.get("host")}/default-dog.jpg`;
 
       // Use frontend URL for canonical URL
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       const canonicalUrl = `${frontendUrl}/dogs/${dog._id}`;
 
+      console.log(`Using frontend URL: ${frontendUrl}`);
+      console.log(`Generated canonical URL: ${canonicalUrl}`);
+      console.log(`Image URL: ${imageUrl}`);
+
       // Generate HTML with meta tags
       const html = `
         <!DOCTYPE html>
-        <html>
+        <html lang="th">
         <head>
+          <meta charset="UTF-8">
           <title>${title}</title>
           <meta name="description" content="${description}">
           
@@ -102,6 +111,11 @@ export function socialMediaPrerender(req: any, res: any, next: any) {
           <meta property="og:title" content="${title}">
           <meta property="og:description" content="${description}">
           <meta property="og:image" content="${imageUrl}">
+          <meta property="og:image:width" content="1200">
+          <meta property="og:image:height" content="630">
+          <meta property="og:locale" content="th_TH">
+          <meta property="og:site_name" content="haban.love - ระบบแจ้งและตามหาสุนัขหาย">
+          <meta property="fb:app_id" content="297302183484420">
           
           <!-- Twitter -->
           <meta property="twitter:card" content="summary_large_image">
@@ -110,16 +124,19 @@ export function socialMediaPrerender(req: any, res: any, next: any) {
           <meta property="twitter:description" content="${description}">
           <meta property="twitter:image" content="${imageUrl}">
           
+          <!-- Canonical -->
+          <link rel="canonical" href="${canonicalUrl}">
+          
           <!-- Redirect to the actual page -->
           <meta http-equiv="refresh" content="0;url=${canonicalUrl}">
         </head>
         <body>
-          <p>Redirecting to <a href="${canonicalUrl}">${title}</a></p>
+          <p>กำลังนำคุณไปที่ <a href="${canonicalUrl}">${title}</a></p>
         </body>
         </html>
       `;
 
-      console.log("Sending HTML response");
+      console.log("Sending HTML response for social media preview");
       res.send(html);
     })
     .catch((error) => {
