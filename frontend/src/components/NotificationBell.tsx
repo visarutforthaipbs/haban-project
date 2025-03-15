@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   Flex,
   Icon,
+  BoxProps,
 } from "@chakra-ui/react";
 import { FiBell, FiCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -87,7 +88,9 @@ const NotificationItem: React.FC<{
   );
 };
 
-const NotificationBell: React.FC = () => {
+interface NotificationBellProps extends BoxProps {}
+
+const NotificationBell: React.FC<NotificationBellProps> = (props) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications();
   const navigate = useNavigate();
@@ -112,75 +115,77 @@ const NotificationBell: React.FC = () => {
   };
 
   return (
-    <Menu closeOnSelect={false}>
-      <MenuButton
-        as={IconButton}
-        aria-label="Notifications"
-        icon={<FiBell />}
-        variant="ghost"
-        position="relative"
-        color={unreadCount > 0 ? "brand.500" : undefined}
-      >
-        {unreadCount > 0 && (
-          <Badge
-            colorScheme="red"
-            borderRadius="full"
-            position="absolute"
-            top="-1px"
-            right="-1px"
-            fontSize="xs"
-          >
-            {unreadCount}
-          </Badge>
-        )}
-      </MenuButton>
-      <MenuList zIndex={100} minW="300px" maxH="400px" overflowY="auto">
-        <Box px={4} py={2} borderBottomWidth="1px">
-          <HStack justify="space-between">
-            <Text fontWeight="bold">การแจ้งเตือน</Text>
-            {unreadCount > 0 && (
-              <Button
-                size="xs"
-                colorScheme="brand"
-                variant="outline"
-                onClick={() => markAllAsRead()}
-              >
-                อ่านทั้งหมด
-              </Button>
-            )}
-          </HStack>
-        </Box>
-
-        {notifications.length === 0 ? (
-          <Box py={6} textAlign="center">
-            <Text color="gray.500">ไม่มีการแจ้งเตือน</Text>
+    <Box {...props}>
+      <Menu closeOnSelect={false}>
+        <MenuButton
+          as={IconButton}
+          aria-label="Notifications"
+          icon={<FiBell />}
+          variant="ghost"
+          position="relative"
+          color={unreadCount > 0 ? "brand.500" : undefined}
+        >
+          {unreadCount > 0 && (
+            <Badge
+              colorScheme="red"
+              borderRadius="full"
+              position="absolute"
+              top="-1px"
+              right="-1px"
+              fontSize="xs"
+            >
+              {unreadCount}
+            </Badge>
+          )}
+        </MenuButton>
+        <MenuList zIndex={100} minW="300px" maxH="400px" overflowY="auto">
+          <Box px={4} py={2} borderBottomWidth="1px">
+            <HStack justify="space-between">
+              <Text fontWeight="bold">การแจ้งเตือน</Text>
+              {unreadCount > 0 && (
+                <Button
+                  size="xs"
+                  colorScheme="brand"
+                  variant="outline"
+                  onClick={() => markAllAsRead()}
+                >
+                  อ่านทั้งหมด
+                </Button>
+              )}
+            </HStack>
           </Box>
-        ) : (
-          <VStack spacing={0} align="stretch" divider={<Divider />}>
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification._id}
-                notification={notification}
-                onItemClick={handleNotificationClick}
-                onMarkAsRead={handleMarkAsRead}
-              />
-            ))}
-          </VStack>
-        )}
 
-        <Divider />
-        <Box py={2} px={3}>
-          <Button
-            size="sm"
-            width="100%"
-            variant="ghost"
-            onClick={() => navigate("/notifications")}
-          >
-            ดูการแจ้งเตือนทั้งหมด
-          </Button>
-        </Box>
-      </MenuList>
-    </Menu>
+          {notifications.length === 0 ? (
+            <Box py={6} textAlign="center">
+              <Text color="gray.500">ไม่มีการแจ้งเตือน</Text>
+            </Box>
+          ) : (
+            <VStack spacing={0} align="stretch" divider={<Divider />}>
+              {notifications.map((notification) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onItemClick={handleNotificationClick}
+                  onMarkAsRead={handleMarkAsRead}
+                />
+              ))}
+            </VStack>
+          )}
+
+          <Divider />
+          <Box py={2} px={3}>
+            <Button
+              size="sm"
+              width="100%"
+              variant="ghost"
+              onClick={() => navigate("/notifications")}
+            >
+              ดูการแจ้งเตือนทั้งหมด
+            </Button>
+          </Box>
+        </MenuList>
+      </Menu>
+    </Box>
   );
 };
 
