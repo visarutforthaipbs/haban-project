@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
 import { useAuth } from "../contexts/AuthContext";
 import { dogApi, DogData } from "../services/api";
 import { FiMapPin, FiCalendar, FiPhone } from "react-icons/fi";
@@ -63,6 +62,71 @@ const DogDetails = () => {
     });
   };
 
+  // Move the useEffect for document title and meta tags here, before any conditional returns
+  useEffect(() => {
+    if (!dog) return;
+
+    // Create metadata for sharing
+    const pageTitle = `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
+      dog.name || dog.breed
+    } | haban.love`;
+    const pageDescription = `${dog.breed}, ${dog.color}, ${
+      dog.locationName
+    }. ${dog.description.substring(0, 150)}${
+      dog.description.length > 150 ? "..." : ""
+    }`;
+    const pageImage =
+      dog.photos && dog.photos.length > 0
+        ? dog.photos[0]
+        : "https://www.haban.love/fbthumnail-1.png";
+    const pageUrl = `${window.location.origin}/dogs/${dog._id}`;
+
+    // Set document title
+    document.title = pageTitle;
+
+    // Set meta tags
+    const metaTags = {
+      description: pageDescription,
+      "og:url": pageUrl,
+      "og:type": "article",
+      "og:title": pageTitle,
+      "og:description": pageDescription,
+      "og:image": pageImage,
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:locale": "th_TH",
+      "fb:app_id": "297302183484420",
+      "twitter:card": "summary_large_image",
+      "twitter:title": pageTitle,
+      "twitter:description": pageDescription,
+      "twitter:image": pageImage,
+    };
+
+    // Update or create meta tags
+    Object.entries(metaTags).forEach(([name, content]) => {
+      let meta =
+        document.querySelector(`meta[property="${name}"]`) ||
+        document.querySelector(`meta[name="${name}"]`);
+
+      if (!meta) {
+        meta = document.createElement("meta");
+        if (name.startsWith("og:") || name.startsWith("fb:")) {
+          meta.setAttribute("property", name);
+        } else {
+          meta.setAttribute("name", name);
+        }
+        document.head.appendChild(meta);
+      }
+
+      meta.setAttribute("content", content);
+    });
+
+    // Cleanup function to restore default title when component unmounts
+    return () => {
+      document.title = "haban.love";
+    };
+  }, [dog]);
+
   if (isLoading) {
     return (
       <Container maxW="container.md" py={8}>
@@ -79,7 +143,7 @@ const DogDetails = () => {
     );
   }
 
-  // Create metadata for sharing
+  // Create metadata for sharing (keep these for use in the component)
   const pageTitle = `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
     dog.name || dog.breed
   } | haban.love`;
@@ -119,28 +183,6 @@ const DogDetails = () => {
 
   return (
     <Container maxW="container.md" py={8}>
-      <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-
-        {/* Facebook Open Graph */}
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content={pageImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:locale" content="th_TH" />
-        <meta property="fb:app_id" content="297302183484420" />
-
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content={pageImage} />
-      </Helmet>
-
       <Stack spacing={8}>
         {/* Header */}
         <Box>
