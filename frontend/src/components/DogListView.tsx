@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DogData } from "../services/api";
 import ShareButtons from "./ShareButtons";
+import { Link as RouterLink } from "react-router-dom";
 
 interface DogListViewProps {
   dogs: DogData[];
@@ -140,29 +141,19 @@ export const DogListView = ({
 
               <Flex justifyContent="space-between" alignItems="center">
                 <Button
-                  size="sm"
+                  as={RouterLink}
+                  to={`/dogs/${dog._id}`}
                   colorScheme="blue"
+                  size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/dogs/${dog._id}`);
+                    onDogSelect(dog);
                   }}
                 >
                   ดูรายละเอียด
                 </Button>
 
-                <Box onClick={(e) => e.stopPropagation()}>
-                  <ShareButtons
-                    title={`${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
-                      dog.name || dog.breed
-                    }`}
-                    description={`${dog.breed}, ${dog.color}, ${
-                      dog.locationName
-                    }. ${dog.description.substring(0, 100)}${
-                      dog.description.length > 100 ? "..." : ""
-                    }`}
-                    url={`/dogs/${dog._id}`}
-                  />
-                </Box>
+                {/* Share buttons temporarily removed */}
               </Flex>
             </VStack>
           </Box>

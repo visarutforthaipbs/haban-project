@@ -1,22 +1,45 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
-  Container,
   Heading,
   Text,
   Image,
-  Stack,
+  VStack,
+  HStack,
   Badge,
   Button,
-  HStack,
-  VStack,
   useToast,
+  Spinner,
+  Container,
+  Link,
+  AspectRatio,
   Divider,
-  Flex,
+  Grid,
+  GridItem,
+  FormControl,
+  FormLabel,
+  Select,
+  useDisclosure,
+  Tag,
+  Stack,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+// import ShareButtons from "../components/ShareButtons"; // Temporarily removed
+import { FaMapMarkerAlt, FaCalendarAlt, FaPhoneAlt } from "react-icons/fa";
+import { IoPawOutline } from "react-icons/io5";
+import { formatDistanceToNow } from "date-fns";
+import { th } from "date-fns/locale";
+import { MapContainer } from "../components/MapContainer";
+import { API_URL } from "../config";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useAuth } from "../contexts/AuthContext";
-import { dogApi, DogData } from "../services/api";
+import ContactInfoModal from "../components/ContactInfoModal";
+import MatchingDogsSection from "../components/MatchingDogsSection";
+
+// Types
+import { DogData, DogStatusUpdate } from "../types/Dog";
+import { dogApi } from "../services/api";
 import { FiMapPin, FiCalendar, FiPhone } from "react-icons/fi";
 import ShareButtons from "../components/ShareButtons";
 
@@ -26,6 +49,7 @@ const DogDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -127,6 +151,16 @@ const DogDetails = () => {
     };
   }, [dog]);
 
+  // Define the meta title and image for helmet only
+  const pageTitle = dog
+    ? `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
+        dog.name || dog.breed
+      } - haban.love`
+    : "กำลังโหลด... - haban.love";
+
+  // Define the meta image (used for helmet, not for share buttons now)
+  const pageImage = dog?.photos && dog.photos.length > 0 ? dog.photos[0] : null;
+
   if (isLoading) {
     return (
       <Container maxW="container.md" py={8}>
@@ -142,21 +176,6 @@ const DogDetails = () => {
       </Container>
     );
   }
-
-  // Create metadata for sharing (keep these for use in the component)
-  const pageTitle = `${dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}: ${
-    dog.name || dog.breed
-  } | haban.love`;
-  const pageDescription = `${dog.breed}, ${dog.color}, ${
-    dog.locationName
-  }. ${dog.description.substring(0, 150)}${
-    dog.description.length > 150 ? "..." : ""
-  }`;
-  const pageImage =
-    dog.photos && dog.photos.length > 0
-      ? dog.photos[0]
-      : "https://www.haban.love/fbthumnail-1.png";
-  const pageUrl = `${window.location.origin}/dogs/${dog._id}`;
 
   // Button click handler
   const handleStatusUpdate = async () => {
@@ -215,7 +234,8 @@ const DogDetails = () => {
             </Badge>
           </HStack>
 
-          {/* Share buttons */}
+          {/* Share buttons - temporarily hidden until issues are fixed */}
+          {/* 
           <Flex justifyContent="flex-end" mt={2}>
             <ShareButtons
               title={pageTitle}
@@ -223,6 +243,7 @@ const DogDetails = () => {
               url={pageUrl}
             />
           </Flex>
+          */}
         </Box>
 
         {/* Images */}
