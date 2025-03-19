@@ -136,6 +136,13 @@ export const dogApi: DogApi = {
 
   getSavedDogs: async () => {
     try {
+      // Check for token before making the request
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("No authentication token found when fetching saved dogs");
+        return [];
+      }
+
       const response = await api.get<DogData[]>("/dogs/saved");
       return response.data;
     } catch (error) {

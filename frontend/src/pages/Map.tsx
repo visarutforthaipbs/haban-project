@@ -191,7 +191,24 @@ const MapPage = () => {
         </MenuList>
       </Menu>
 
-      <Box flex="1" overflowY="auto">
+      <Box
+        flexGrow={1}
+        overflowY="auto"
+        maxH="calc(100vh - 200px)"
+        css={{
+          "&::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            width: "8px",
+            backgroundColor: "var(--chakra-colors-gray-100)",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "var(--chakra-colors-gray-300)",
+            borderRadius: "24px",
+          },
+        }}
+      >
         <DogListViewWithUser
           dogs={filteredDogs}
           selectedDog={selectedDog}
@@ -224,7 +241,8 @@ const MapPage = () => {
             borderColor={borderColor}
             bg="white"
             p={4}
-            overflowY="auto"
+            display="flex"
+            flexDirection="column"
           >
             <SidebarContent />
           </Box>
@@ -333,7 +351,12 @@ const MapPage = () => {
             <DrawerHeader borderBottomWidth="1px">
               รายการสุนัขในพื้นที่
             </DrawerHeader>
-            <DrawerBody p={4}>
+            <DrawerBody
+              p={4}
+              overflowY="hidden"
+              display="flex"
+              flexDirection="column"
+            >
               <SidebarContent />
             </DrawerBody>
           </DrawerContent>

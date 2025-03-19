@@ -121,7 +121,10 @@ const DogDetails = () => {
 
   useEffect(() => {
     const checkIfDogIsSaved = async () => {
-      if (!isAuthenticated || !id) return;
+      if (!isAuthenticated || !id || !user) {
+        // User is not authenticated or ID is not available, no need to check
+        return;
+      }
 
       try {
         // Get user's saved dogs
@@ -135,11 +138,14 @@ const DogDetails = () => {
       }
     };
 
-    // Only run if the user is authenticated
-    if (isAuthenticated) {
+    // Only run if the user is authenticated and there's a valid token
+    if (isAuthenticated && localStorage.getItem("token")) {
       checkIfDogIsSaved();
+    } else {
+      // Make sure isSaved is reset when not authenticated
+      setIsSaved(false);
     }
-  }, [id, isAuthenticated]);
+  }, [id, isAuthenticated, user]);
 
   const formatDate = (date: string | Date | undefined) => {
     if (!date) return "ไม่ระบุ";

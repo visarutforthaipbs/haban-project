@@ -17,9 +17,16 @@ import {
   MenuItemOption,
   Badge,
   Container,
+  Flex,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { FiSearch, FiMap, FiFilter } from "react-icons/fi";
+import {
+  FiSearch,
+  FiMap,
+  FiFilter,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { Icon, LatLng } from "leaflet";
@@ -92,6 +99,8 @@ const Home = () => {
   const listingsRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.100", "gray.700");
+  const [currentPage, setCurrentPage] = useState(1);
+  const dogsPerPage = 12; // Adjust based on your design needs
 
   const fetchDogs = useCallback(async () => {
     try {
@@ -155,6 +164,100 @@ const Home = () => {
         dogElement.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
+  };
+
+  // Calculate pagination
+  const indexOfLastDog = currentPage * dogsPerPage;
+  const indexOfFirstDog = indexOfLastDog - dogsPerPage;
+  const currentDogs = filteredDogs.slice(indexOfFirstDog, indexOfLastDog);
+  const totalPages = Math.ceil(filteredDogs.length / dogsPerPage);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    // Scroll to top of list when page changes
+    if (listingsRef.current) {
+      listingsRef.current.scrollTop = 0;
+    }
+  };
+
+  // Generate pagination buttons with ellipses for large page counts
+  const getPaginationButtons = () => {
+    const maxButtons = 5; // Maximum number of page buttons to show
+    const buttons = [];
+
+    // Always show first page
+    buttons.push(
+      <Button
+        key={1}
+        size="sm"
+        variant={currentPage === 1 ? "solid" : "outline"}
+        colorScheme={currentPage === 1 ? "brand" : "gray"}
+        onClick={() => handlePageChange(1)}
+        minW="32px"
+      >
+        1
+      </Button>
+    );
+
+    // Calculate range of pages to show
+    let startPage = Math.max(2, currentPage - Math.floor(maxButtons / 2));
+    const endPage = Math.min(totalPages - 1, startPage + maxButtons - 3);
+
+    if (endPage - startPage < maxButtons - 3) {
+      startPage = Math.max(2, endPage - (maxButtons - 3));
+    }
+
+    // Add ellipsis if there's a gap after first page
+    if (startPage > 2) {
+      buttons.push(
+        <Text key="ellipsis-1" fontSize="sm" px={1}>
+          ...
+        </Text>
+      );
+    }
+
+    // Add middle pages
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={currentPage === i ? "solid" : "outline"}
+          colorScheme={currentPage === i ? "brand" : "gray"}
+          onClick={() => handlePageChange(i)}
+          minW="32px"
+        >
+          {i}
+        </Button>
+      );
+    }
+
+    // Add ellipsis if there's a gap before last page
+    if (endPage < totalPages - 1) {
+      buttons.push(
+        <Text key="ellipsis-2" fontSize="sm" px={1}>
+          ...
+        </Text>
+      );
+    }
+
+    // Always show last page if there are at least 2 pages
+    if (totalPages > 1) {
+      buttons.push(
+        <Button
+          key={totalPages}
+          size="sm"
+          variant={currentPage === totalPages ? "solid" : "outline"}
+          colorScheme={currentPage === totalPages ? "brand" : "gray"}
+          onClick={() => handlePageChange(totalPages)}
+          minW="32px"
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+
+    return buttons;
   };
 
   return (
@@ -230,17 +333,72 @@ const Home = () => {
             bg="white"
             h="100%"
             w="100%"
+            css={{
+              "&::-webkit-scrollbar": {
+                width: "6px",
+              },
+              "&::-webkit-scrollbar-track": {
+                width: "8px",
+                backgroundColor: "var(--chakra-colors-gray-100)",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "var(--chakra-colors-gray-300)",
+                borderRadius: "24px",
+              },
+              // Firefox scrollbar styling
+              scrollbarWidth: "thin",
+              scrollbarColor:
+                "var(--chakra-colors-gray-300) var(--chakra-colors-gray-100)",
+            }}
           >
             <Box p={4}>
               <Heading size="md" mb={4}>
                 รายการล่าสุด
+                {filteredDogs.length > 0 && (
+                  <Text
+                    as="span"
+                    fontSize="sm"
+                    fontWeight="normal"
+                    ml={2}
+                    color="gray.500"
+                  >
+                    ({filteredDogs.length} รายการ)
+                  </Text>
+                )}
               </Heading>
               <DogListViewWithUser
-                dogs={filteredDogs}
+                dogs={currentDogs}
                 selectedDog={selectedDog}
                 onDogSelect={handleDogSelect}
-                columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+                columns={{ base: 1, md: 2, lg: 2, xl: 3 }}
               />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Flex justify="center" mt={6} align="center">
+                  <Button
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    isDisabled={currentPage === 1}
+                    mr={2}
+                    leftIcon={<FiChevronLeft />}
+                  >
+                    ก่อนหน้า
+                  </Button>
+
+                  <HStack spacing={1}>{getPaginationButtons()}</HStack>
+
+                  <Button
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    isDisabled={currentPage === totalPages}
+                    ml={2}
+                    rightIcon={<FiChevronRight />}
+                  >
+                    ถัดไป
+                  </Button>
+                </Flex>
+              )}
             </Box>
           </Box>
 
