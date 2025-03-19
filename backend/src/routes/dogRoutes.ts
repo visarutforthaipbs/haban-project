@@ -71,4 +71,7 @@ router.post("/:id/save", verifyToken, saveDog);
 // Unsave a dog
 router.delete("/:id/save", verifyToken, unsaveDog);
 
+// Add the update route (needs authentication)
+router.put("/:id", verifyToken, updateDog);
+
 export default router;

@@ -225,43 +225,66 @@ export const getDog = async (req: Request, res: Response) => {
   }
 };
 
-export const updateDog = async (req: AuthenticatedRequest, res: Response) => {
+export const updateDog = async (req: Request, res: Response) => {
   try {
-    const updates = req.body;
+    const { id } = req.params;
+    const userId = (req as any).user.id;
 
-    // Upload new photos if available and Firebase is configured
-    if (req.files && Array.isArray(req.files)) {
-      try {
-        const uploadPromises = (req.files as Express.Multer.File[]).map(
-          (file) => uploadToFirebase(file)
-        );
-        updates.photos = await Promise.all(uploadPromises);
-      } catch (error) {
-        console.error("Error uploading files to Firebase:", error);
-        return res.status(500).json({
-          message:
-            "Error uploading files. Firebase Storage may not be configured properly.",
-        });
-      }
-    }
+    // Find the dog by ID
+    const dog = await Dog.findById(id);
 
-    const dog = await dogService.getDogById(req.params.id);
     if (!dog) {
       return res.status(404).json({ message: "Dog not found" });
     }
 
-    // Check if user is authorized to update
-    if (dog.userId && dog.userId !== req.user?.id) {
+    // Check if the user is the owner of this dog post
+    if (dog.userId.toString() !== userId) {
       return res
         .status(403)
-        .json({ message: "Not authorized to update this report" });
+        .json({ message: "You can only edit your own posts" });
     }
 
-    const updatedDog = await dogService.updateDog(req.params.id, updates);
-    res.json(updatedDog);
+    // Fields that are allowed to be updated
+    const updatableFields = [
+      "name",
+      "breed",
+      "age",
+      "gender",
+      "color",
+      "size",
+      "description",
+      "location",
+      "userContact",
+      "userContactInfo",
+      "status",
+      "lastSeenDate",
+      "lastSeenLocation",
+    ];
+
+    // Create update object with only allowed fields
+    const updateData = {};
+    updatableFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    // Handle images separately if provided
+    if (req.body.images && Array.isArray(req.body.images)) {
+      updateData["images"] = req.body.images;
+    }
+
+    // Update the dog document
+    const updatedDog = await Dog.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json(updatedDog);
   } catch (error) {
     console.error("Error updating dog:", error);
-    res.status(500).json({ message: "Error updating dog" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 

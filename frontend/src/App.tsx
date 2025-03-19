@@ -6,6 +6,7 @@ import AppRoutes from "./routes";
 import { SocketProvider } from "./contexts/SocketContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import EditDogForm from "./pages/EditDogForm";
 
 const queryClient = new QueryClient({
   defaultOptions: {

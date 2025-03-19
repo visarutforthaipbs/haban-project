@@ -135,8 +135,14 @@ export const dogApi: DogApi = {
   },
 
   getSavedDogs: async () => {
-    const response = await api.get<DogData[]>("/dogs/saved");
-    return response.data;
+    try {
+      const response = await api.get<DogData[]>("/dogs/saved");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching saved dogs:", error);
+      // Return empty array instead of throwing error to prevent UI disruptions
+      return [];
+    }
   },
 };
 
@@ -215,4 +221,31 @@ export const notificationApi: NotificationApi = {
     }>("/notifications/settings");
     return response.data;
   },
+};
+
+export const updateDog = async (
+  id: string,
+  dogData: Partial<DogData>
+): Promise<DogData> => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  try {
+    // Use PATCH instead of PUT to match the backend route
+    // If the data contains files, we'd need to convert to FormData, but for this case
+    // we're just updating text fields so we can use JSON
+    const response = await api.patch<DogData>(`/dogs/${id}`, dogData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating dog:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to update dog information"
+      );
+    }
+    throw new Error("Failed to update dog information");
+  }
 };

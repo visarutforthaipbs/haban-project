@@ -48,6 +48,7 @@ import {
 } from "react-icons/fi";
 import ShareButtons from "../components/ShareButtons";
 import axios from "axios";
+import { EditIcon } from "@chakra-ui/icons";
 
 // Types
 import { DogData, DogStatusUpdate } from "../types/Dog";
@@ -129,10 +130,15 @@ const DogDetails = () => {
         setIsSaved(savedDogs.some((savedDog) => savedDog._id === id));
       } catch (error) {
         console.error("Error checking if dog is saved:", error);
+        // Don't update the isSaved state on error
+        // This prevents UI issues when the API call fails
       }
     };
 
-    checkIfDogIsSaved();
+    // Only run if the user is authenticated
+    if (isAuthenticated) {
+      checkIfDogIsSaved();
+    }
   }, [id, isAuthenticated]);
 
   const formatDate = (date: string | Date | undefined) => {
@@ -293,6 +299,10 @@ const DogDetails = () => {
     } finally {
       setIsSaveLoading(false);
     }
+  };
+
+  const handleEditClick = () => {
+    navigate(`/edit-dog/${id}`);
   };
 
   if (isLoading) {
@@ -457,6 +467,7 @@ const DogDetails = () => {
           <HStack justify="flex-end" pt={4} spacing={4}>
             {user && user.id === dog.userId && (
               <Button
+                size="md"
                 colorScheme={dog.status === "active" ? "blue" : "green"}
                 onClick={handleStatusUpdate}
               >
@@ -468,7 +479,7 @@ const DogDetails = () => {
 
             {isAuthenticated && (
               <Button
-                size="sm"
+                size="md"
                 colorScheme={isSaved ? "green" : "gray"}
                 variant="outline"
                 leftIcon={isSaved ? <FiCheck /> : <FiBookmark />}
@@ -476,6 +487,17 @@ const DogDetails = () => {
                 isLoading={isSaveLoading}
               >
                 {isSaved ? "บันทึกแล้ว" : "บันทึก"}
+              </Button>
+            )}
+
+            {dog && user && dog.userId === user.id && (
+              <Button
+                size="md"
+                leftIcon={<EditIcon />}
+                colorScheme="blue"
+                onClick={handleEditClick}
+              >
+                แก้ไขข้อมูล
               </Button>
             )}
           </HStack>
