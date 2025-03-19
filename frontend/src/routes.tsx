@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { Box, Spinner } from "@chakra-ui/react";
+import { useAuth } from "./contexts/AuthContext";
 
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"));
@@ -9,6 +10,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const PostLost = lazy(() => import("./pages/PostLost"));
 const PostFound = lazy(() => import("./pages/PostFound"));
 const DogDetails = lazy(() => import("./pages/DogDetails"));
+const EditDogForm = lazy(() => import("./pages/EditDogForm"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -20,6 +22,17 @@ const LoadingSpinner = () => (
     <Spinner size="xl" color="brand.500" />
   </Box>
 );
+
+// Protected Route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 const AppRoutes = () => {
   return (
@@ -37,6 +50,14 @@ const AppRoutes = () => {
           <Route path="post-lost" element={<PostLost />} />
           <Route path="post-found" element={<PostFound />} />
           <Route path="dogs/:id" element={<DogDetails />} />
+          <Route
+            path="edit-dog/:id"
+            element={
+              <ProtectedRoute>
+                <EditDogForm />
+              </ProtectedRoute>
+            }
+          />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>
 
