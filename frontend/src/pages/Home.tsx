@@ -121,10 +121,15 @@ const Home = () => {
       }
 
       const response = await dogApi.getDogs(params);
-      setRecentDogs(response);
-      setFilteredDogs(response);
+      // Ensure response is always an array
+      const dogsArray = Array.isArray(response) ? response : [];
+      setRecentDogs(dogsArray);
+      setFilteredDogs(dogsArray);
     } catch (error) {
       console.error("Error fetching dogs:", error);
+      // Set empty arrays on error to prevent .map() errors
+      setRecentDogs([]);
+      setFilteredDogs([]);
     }
   }, [filters]);
 
@@ -169,8 +174,9 @@ const Home = () => {
   // Calculate pagination
   const indexOfLastDog = currentPage * dogsPerPage;
   const indexOfFirstDog = indexOfLastDog - dogsPerPage;
-  const currentDogs = filteredDogs.slice(indexOfFirstDog, indexOfLastDog);
-  const totalPages = Math.ceil(filteredDogs.length / dogsPerPage);
+  const safeFilteredDogs = Array.isArray(filteredDogs) ? filteredDogs : [];
+  const currentDogs = safeFilteredDogs.slice(indexOfFirstDog, indexOfLastDog);
+  const totalPages = Math.ceil(safeFilteredDogs.length / dogsPerPage);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -354,7 +360,7 @@ const Home = () => {
             <Box p={4}>
               <Heading size="md" mb={4}>
                 รายการล่าสุด
-                {filteredDogs.length > 0 && (
+                {safeFilteredDogs.length > 0 && (
                   <Text
                     as="span"
                     fontSize="sm"
@@ -362,7 +368,7 @@ const Home = () => {
                     ml={2}
                     color="gray.500"
                   >
-                    ({filteredDogs.length} รายการ)
+                    ({safeFilteredDogs.length} รายการ)
                   </Text>
                 )}
               </Heading>
@@ -419,67 +425,68 @@ const Home = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               />
-              {filteredDogs.map((dog) => (
-                <Marker
-                  key={dog._id}
-                  position={[
-                    dog.location.coordinates[1],
-                    dog.location.coordinates[0],
-                  ]}
-                  icon={
-                    selectedDog?._id === dog._id
-                      ? dog.type === "lost"
-                        ? selectedLostDogIcon
-                        : selectedFoundDogIcon
-                      : dog.type === "lost"
-                      ? lostDogIcon
-                      : foundDogIcon
-                  }
-                  eventHandlers={{
-                    click: () => handleDogSelect(dog),
-                  }}
-                >
-                  <Popup>
-                    <Box className="custom-popup" p={2} maxW="200px">
-                      <VStack align="stretch" spacing={2}>
-                        {/* Type badge */}
-                        <Badge
-                          colorScheme={dog.type === "lost" ? "red" : "green"}
-                          fontSize="xs"
-                          px={2}
-                          py={0.5}
-                          borderRadius="full"
-                          alignSelf="flex-start"
-                        >
-                          {dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}
-                        </Badge>
+              {Array.isArray(filteredDogs) &&
+                filteredDogs.map((dog) => (
+                  <Marker
+                    key={dog._id}
+                    position={[
+                      dog.location.coordinates[1],
+                      dog.location.coordinates[0],
+                    ]}
+                    icon={
+                      selectedDog?._id === dog._id
+                        ? dog.type === "lost"
+                          ? selectedLostDogIcon
+                          : selectedFoundDogIcon
+                        : dog.type === "lost"
+                        ? lostDogIcon
+                        : foundDogIcon
+                    }
+                    eventHandlers={{
+                      click: () => handleDogSelect(dog),
+                    }}
+                  >
+                    <Popup>
+                      <Box className="custom-popup" p={2} maxW="200px">
+                        <VStack align="stretch" spacing={2}>
+                          {/* Type badge */}
+                          <Badge
+                            colorScheme={dog.type === "lost" ? "red" : "green"}
+                            fontSize="xs"
+                            px={2}
+                            py={0.5}
+                            borderRadius="full"
+                            alignSelf="flex-start"
+                          >
+                            {dog.type === "lost" ? "สุนัขหาย" : "พบสุนัข"}
+                          </Badge>
 
-                        {/* Dog name and breed */}
-                        <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
-                          {dog.name || dog.breed}
-                        </Text>
+                          {/* Dog name and breed */}
+                          <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
+                            {dog.name || dog.breed}
+                          </Text>
 
-                        {/* Location - most important info */}
-                        <Text fontSize="xs" color="gray.600" noOfLines={1}>
-                          {dog.locationName}
-                        </Text>
+                          {/* Location - most important info */}
+                          <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                            {dog.locationName}
+                          </Text>
 
-                        {/* Details button */}
-                        <Button
-                          as={RouterLink}
-                          to={`/dogs/${dog._id}`}
-                          size="xs"
-                          colorScheme="brand"
-                          width="full"
-                          mt={1}
-                        >
-                          ดูรายละเอียด
-                        </Button>
-                      </VStack>
-                    </Box>
-                  </Popup>
-                </Marker>
-              ))}
+                          {/* Details button */}
+                          <Button
+                            as={RouterLink}
+                            to={`/dogs/${dog._id}`}
+                            size="xs"
+                            colorScheme="brand"
+                            width="full"
+                            mt={1}
+                          >
+                            ดูรายละเอียด
+                          </Button>
+                        </VStack>
+                      </Box>
+                    </Popup>
+                  </Marker>
+                ))}
             </MapContainer>
             <Button
               as={RouterLink}
