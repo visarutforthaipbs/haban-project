@@ -7,6 +7,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 import path from "path";
+import "./utils/firebase"; // Initialize Firebase Admin SDK
 import dogRoutes from "./routes/dogRoutes";
 import authRoutes from "./routes/authRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
