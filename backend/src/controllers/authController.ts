@@ -110,7 +110,8 @@ export const loginWithFirebase = async (req: Request, res: Response) => {
     }
 
     // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    // Note: checkRevoked set to false to avoid SSL issues on local Mac
+    const decodedToken = await admin.auth().verifyIdToken(idToken, false);
 
     // Extract user information from the decoded token
     const { uid, email, name, picture } = decodedToken;

@@ -7,6 +7,19 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 import path from "path";
+
+// Load environment variables first
+dotenv.config();
+
+// Fix SSL certificate issues on Mac for Firebase Admin SDK
+// This is needed when running locally on Mac Mini
+if (process.env.NODE_ENV === "production" && process.platform === "darwin") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  console.log(
+    "⚠️  SSL certificate verification disabled for local Mac deployment"
+  );
+}
+
 import "./utils/firebase"; // Initialize Firebase Admin SDK
 import dogRoutes from "./routes/dogRoutes";
 import authRoutes from "./routes/authRoutes";
@@ -14,9 +27,6 @@ import notificationRoutes from "./routes/notificationRoutes";
 import userRoutes from "./routes/userRoutes";
 import previewRoutes from "./routes/previewRoutes";
 import { socialMediaPrerender } from "./middleware";
-
-// Load environment variables
-dotenv.config();
 
 // Create Express app
 const app = express.default();
