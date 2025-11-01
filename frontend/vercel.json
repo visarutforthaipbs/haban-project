@@ -37,7 +37,7 @@
           "value": "facebookexternalhit"
         }
       ],
-      "destination": "https://haban-project.onrender.com/api/dogs/:id?format=html"
+      "destination": "https://api.haban.love/api/dogs/:id?format=html"
     },
     {
       "source": "/dogs/:id",
@@ -48,7 +48,7 @@
           "value": "Facebot"
         }
       ],
-      "destination": "https://haban-project.onrender.com/api/dogs/:id?format=html"
+      "destination": "https://api.haban.love/api/dogs/:id?format=html"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
