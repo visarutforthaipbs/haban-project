@@ -12,12 +12,11 @@ import path from "path";
 dotenv.config();
 
 // Fix SSL certificate issues on Mac for Firebase Admin SDK
-// This is needed when running locally on Mac Mini
-if (process.env.NODE_ENV === "production" && process.platform === "darwin") {
+// This MUST be set before importing firebase module
+// Remove the production check - always disable for Mac to avoid SSL issues
+if (process.platform === "darwin") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  console.log(
-    "⚠️  SSL certificate verification disabled for local Mac deployment"
-  );
+  console.log("⚠️  SSL certificate verification disabled for Mac deployment");
 }
 
 import "./utils/firebase"; // Initialize Firebase Admin SDK
