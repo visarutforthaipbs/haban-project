@@ -5,6 +5,13 @@ import path from "path";
 // Load environment variables from .env file
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
+// Fix SSL certificate issues on Mac for Firebase Admin SDK
+// This MUST be set BEFORE any Firebase initialization
+if (process.platform === "darwin") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  console.log("⚠️  SSL certificate verification disabled for Mac deployment");
+}
+
 // Debug logging for Firebase configuration
 console.log("Checking Firebase configuration:");
 console.log("Project ID:", process.env.FIREBASE_PROJECT_ID ? "✓" : "✗");
