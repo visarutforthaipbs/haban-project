@@ -33,3 +33,6 @@ coverage/
 # Firebase
 firebase-debug.log
 .firebase/ 
+# Logs
+backend/logs/*.log
+

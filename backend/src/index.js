@@ -25,31 +25,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-// Socket.io setup
-const io = new Server(httpServer, {
-  cors: {
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:5173",
-      "https://haban-project.vercel.app",
-      "https://www.haban-project.vercel.app",
-      "https://haban-project-visarutforthaipbs.vercel.app",
-      "https://www.facebook.com",
-      "https://haban.love",
-      "https://www.haban.love",
-      "*", // As a last resort, allow all origins (not recommended for production)
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  },
-  // Allow transport
-  transports: ["websocket", "polling"],
-});
-
-// Middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
+// Define allowed origins for CORS
       const allowedOrigins = [
         process.env.FRONTEND_URL || "http://localhost:5173",
         "https://haban-project.vercel.app",
@@ -58,21 +34,44 @@ app.use(
         "https://www.facebook.com",
         "https://haban.love",
         "https://www.haban.love",
+        "http://api.haban.love",
+        "https://api.haban.love",
+        "http://haban-backend.ddns.net",
+        "https://haban-backend.ddns.net",
+        "http://haban-backend.ddns.net:3000",
+        "http://localhost:5173",
       ];
 
-      // Allow requests with no origin (like mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) !== -1 || origin === "*") {
-        return callback(null, true);
-      } else {
-        console.log("Blocked by CORS: ", origin);
-        return callback(null, false);
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+// Socket.io setup
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
+  },
+  transports: ["websocket", "polling"],
+});
+
+// Middleware
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, Postman, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      } else {
+        console.log("🚫 Blocked by CORS:", origin);
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 app.use(helmet());
@@ -149,6 +148,26 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dogs", dogRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    port: PORT
+  });
+});
+
+// API health check
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    port: PORT
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
